@@ -1,1 +1,2 @@
-# Management-of-Academic-Activity-Reports
+- Apply the acquired knowledge to analyze, design, and implement a specific web application.
+- Use the Laravel framework, PHP language, and related tools to develop a website for managing academic activity reports at Nha Trang University.
