@@ -104,9 +104,16 @@ private function getDataTable()
     }
     
  
-    public function edit(GiangVien $giangvien)
+    // public function edit(GiangVien $giangvien)
+    // {
+    //     //$giangvien = GiangVien::where('maGiangVien', $maGiangVien)->firstOrFail();
+    //     $chucvus = ChucVu::all(); 
+    //     $bomons = BoMon::all(); 
+    //     return view('giangvien.edit', compact('giangvien', 'chucvus', 'bomons'));
+    // }
+    public function edit( $maGiangVien)
     {
-        //$giangvien = GiangVien::where('maGiangVien', $maGiangVien)->firstOrFail();
+        $giangvien = GiangVien::where('maGiangVien', $maGiangVien)->firstOrFail();
         $chucvus = ChucVu::all(); 
         $bomons = BoMon::all(); 
         return view('giangvien.edit', compact('giangvien', 'chucvus', 'bomons'));
@@ -138,8 +145,10 @@ private function getDataTable()
     //     return redirect()->route('giangvien.index')->with('success', 'Cập nhật giảng viên thành công!');
     // }
 
-    public function update(UpdateGiangVienRequest $request, GiangVien $giangvien)
+    public function update(UpdateGiangVienRequest $request, $maGiangVien)
 {
+    $giangvien = GiangVien::where('maGiangVien', $maGiangVien)->firstOrFail();
+    dd($giangvien);
     $data = $request->validated();
 
     // Xử lý ảnh đại diện
@@ -218,9 +227,6 @@ private function getDataTable()
      */
     public function destroy($maGiangVien)
     {
-        // $giangVien = GiangVien::where('maGiangVien', $maGiangVien)->firstOrFail();
-        // $giangVien->delete();
-        // return redirect()->route('giangvien.index')->with('success', 'Xóa giảng viên thành công!');
         $giangVien = GiangVien::where('maGiangVien', $maGiangVien)->firstOrFail();
 
         // Xóa ảnh đại diện

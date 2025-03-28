@@ -80,7 +80,12 @@
                 { data: 'tenChucVu', name: 'tenChucVu' },
                 { data: 'quyen', name: 'quyen' },
                 { data: 'hanhdong', name: 'hanhdong', orderable: false, searchable: false }
-            ]
+            ],
+            language: {
+                searchPlaceholder: "Tìm kiếm...",
+                lengthMenu: "Hiển thị _MENU_ dòng",
+                processing: '<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i>'
+            }
         });
     });
 

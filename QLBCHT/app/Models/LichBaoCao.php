@@ -11,4 +11,15 @@ class LichBaoCao extends Model
     protected $table = 'lich_bao_caos';
     protected $primaryKey = 'maLich';
     protected $fillable = ['ngayBaoCao', 'gioBaoCao', 'chuDe', 'giangVienPhuTrach_id', 'hanNgayNop', 'hanGioNop', 'boMon_id'];
+
+    public function giangVienPhuTrach()
+    {
+        return $this->belongsToMany(GiangVien::class, 'lich_bao_cao_giang_vien', 'lich_bao_cao_id', 'giang_vien_id');
+    }
+
+    public function boMon()
+    {
+        return $this->belongsTo(BoMon::class, 'boMon_id', 'maBoMon');
+    }
+
 }

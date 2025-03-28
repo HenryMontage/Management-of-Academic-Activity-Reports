@@ -8,7 +8,7 @@ use App\Http\Controllers\BoMonController;
 use App\Http\Controllers\ChucVuController;
 use App\Http\Controllers\GiangVienController;
 use App\Http\Controllers\NhanVienPDBCLController;
-
+use App\Http\Controllers\LichBaoCaoController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -31,6 +31,10 @@ Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
 })->name('admin.dashboard');
 
+Route::get('/user/dashboard', function () {
+    return view('user.dashboard');
+})->name('user.dashboard');
+
 //Routes CRUD Admin
 Route::prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('admin.index'); // Danh sách Admin
@@ -46,9 +50,9 @@ Route::prefix('giangvien')->group(function () {
     Route::get('/', [GiangVienController::class, 'index'])->name('giangvien.index');
     Route::get('/create', [GiangVienController::class, 'create'])->name('giangvien.create');
     Route::post('/store', [GiangVienController::class, 'store'])->name('giangvien.store');
-    Route::get('/{giangvien}/edit', [GiangVienController::class, 'edit'])->name('giangvien.edit');
-    Route::put('/{giangvien}', [GiangVienController::class, 'update'])->name('giangvien.update');
-    Route::delete('/{giangvien}', [GiangVienController::class, 'destroy'])->name('giangvien.destroy');
+    Route::get('/{maGiangVien}/edit', [GiangVienController::class, 'edit'])->name('giangvien.edit');
+    Route::put('/{maGiangVien}', [GiangVienController::class, 'update'])->name('giangvien.update');
+    Route::delete('/{maGiangVien}', [GiangVienController::class, 'destroy'])->name('giangvien.destroy');
 });
 
 // Routes CRUD Khoa
@@ -80,6 +84,20 @@ Route::prefix('bomon')->group(function () {
     Route::put('/{bomon}', [BoMonController::class, 'update'])->name('bomon.update'); // Cập nhật bộ môn
     Route::delete('/{bomon}', [BoMonController::class, 'destroy'])->name('bomon.destroy'); // Xóa bộ môn
 });
+
+
+Route::prefix('lichbaocao')->group(function () {
+    Route::get('/', [LichBaoCaoController::class, 'index'])->name('lichbaocao.index');
+    Route::get('/create', [LichBaoCaoController::class, 'create'])->name('lichbaocao.create');
+    Route::post('/store', [LichBaoCaoController::class, 'store'])->name('lichbaocao.store');
+    Route::get('/{lichbaocao}/edit', [LichBaoCaoController::class, 'edit'])->name('lichbaocao.edit');
+    Route::put('/{lichbaocao}', [LichBaoCaoController::class, 'update'])->name('lichbaocao.update');
+    Route::delete('/{lichbaocao}', [LichBaoCaoController::class, 'destroy'])->name('lichbaocao.destroy');
+    Route::get('/giangviens/{boMon_id}', [LichBaoCaoController::class, 'getGiangVien'])->name('lichbaocao.getGiangVien');// api lấy giảng viên từ bộ môn
+
+});
+
+
 
 
 

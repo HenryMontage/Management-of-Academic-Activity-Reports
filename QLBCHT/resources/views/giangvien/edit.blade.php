@@ -9,8 +9,7 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h2 class="text-center mb-4">Cập Nhật Giảng Viên {{ $giangvien->ho }} {{ $giangvien->ten }}</h2>
-
-                    <form action="{{ route('giangvien.update', $giangvien) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('giangvien.update', $giangvien->maGiangVien) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="row g-3">

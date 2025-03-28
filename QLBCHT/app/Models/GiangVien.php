@@ -31,6 +31,13 @@ class GiangVien extends Model
         return $this->belongsTo(BoMon::class, 'boMon_id', 'maBoMon');
     }
 
+    public function lichBaoCaos()
+{
+    return $this->belongsToMany(LichBaoCao::class, 'lich_bao_cao_giang_vien', 'giang_vien_id', 'lich_bao_cao_id');
+}
+
+
+
     public function getRouteKeyName()
     {
         return 'maGiangVien';
