@@ -16,9 +16,11 @@
 
  <div class="d-flex align-items-center justify-content-center">
     <!-- Nút Sửa -->
+    @if (!empty($editRoute))
     <a href="{{ route($editRoute, $id) }}" class="btn btn-warning btn-sm me-2">
         <i class="fas fa-edit"></i> Sửa
     </a>
+    @endif
 
     <!-- Nút Xóa -->
     <form id="deleteForm{{ $id }}" action="{{ route($deleteRoute, $id) }}" method="POST" >

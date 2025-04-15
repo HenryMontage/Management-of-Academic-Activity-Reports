@@ -10,5 +10,12 @@ class BaoCao extends Model
     use HasFactory;
     protected $table = 'bao_caos';
     protected $primaryKey = 'maBaoCao';
-    protected $fillable = ['tenBaoCao', 'ngayNop', 'dinhDang', 'tomTat', 'duongDanFile', 'giangVien_id'];
+    public $incrementing = true;
+    protected $fillable = ['maBaoCao','tenBaoCao', 'ngayNop', 'dinhDang', 'tomTat', 'duongDanFile', 'giangVien_id'];
+
+    public function giangVien()
+    {
+        return $this->belongsTo(GiangVien::class, 'giangVien_id', 'maGiangVien');
+    }
+
 }

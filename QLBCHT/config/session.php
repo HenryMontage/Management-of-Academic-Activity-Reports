@@ -31,8 +31,8 @@ return [
     |
     */
 
-    'lifetime' => env('SESSION_LIFETIME', 120),
-
+    // 'lifetime' => env('SESSION_LIFETIME', 120),
+    'lifetime' => 30,
     'expire_on_close' => false,
 
     /*
@@ -211,4 +211,20 @@ return [
 
     'partitioned' => false,
 
+
+    'driver' => env('SESSION_DRIVER', 'file'),
+    'cookie' => env('SESSION_COOKIE', 'laravel_session'), // Default cookie name
+
+    // Thêm cấu hình cho từng guard
+    'guards' => [
+        'admins' => [
+            'cookie' => 'admin_session_cookie', // Cookie riêng biệt cho admin
+        ],
+        'giang_viens' => [
+            'cookie' => 'giangvien_session_cookie', // Cookie riêng biệt cho giảng viên
+        ],
+        'nhan_vien_p_d_b_c_ls' => [
+            'cookie' => 'nhanvien_session_cookie', // Cookie riêng biệt cho nhân viên
+        ],
+    ],
 ];

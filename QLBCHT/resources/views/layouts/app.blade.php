@@ -327,12 +327,15 @@
                     </div>
                     
                     <div class="user-actions">
-                        
+                        @php
+                            $guard = session('current_guard');
+                            $user = Auth::guard($guard)->user();
+                        @endphp
+                        @if ($user)
                             <div class="dropdown">
                                 <a href="#" class="dropdown-toggle text-decoration-none" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-user me-2"></i>
-                                    {{-- <span>{{ $currentUser->name }}</span> --}}
-                                    Xin chào Quản trị viên
+                                    Xin chào {{ $user->ho }} {{ $user->ten }}
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li><a class="dropdown-item" href="#">
@@ -340,14 +343,16 @@
                                     </a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item text-danger" href="#"
-                                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                        <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                            <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
                                         </a>
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                            @csrf
+                                        </form>
                                     </li>
                                 </ul>
                             </div>
-                        
+                        @endif
                     </div>
                 </div>
 

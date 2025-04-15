@@ -7,25 +7,39 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Symfony\Component\HttpFoundation\Response;
+use Carbon\Carbon;
 
 class SessionTimeout
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Session::has('last_activity') && now()->diffInMinutes(Session::get('last_activity')) > 30) {
-            Auth::logout();
-            Session::invalidate();
-            return redirect()->route('login')->withErrors(['timeout' => 'Phiên đăng nhập đã hết hạn.']);
+        $guards = ['admins', 'giang_viens', 'nhan_vien_p_d_b_c_ls'];
+        $isAuthenticated = false;
+        $currentGuard = null;
+
+        // Kiểm tra guard nào đang đăng nhập
+        foreach ($guards as $guard) {
+            if (Auth::guard($guard)->check()) {
+                $isAuthenticated = true;
+                $currentGuard = $guard;
+                break;
+            }
         }
 
-        Session::put('last_activity', now());
+        if ($isAuthenticated) {
+            $lastActivity = Session::get('last_activity_' . $currentGuard);
+
+            if ($lastActivity) {
+                if (now()->diffInMinutes(Carbon::parse($lastActivity)) > 30) {
+                    Auth::guard($currentGuard)->logout();
+                    Session::flush();
+                    return redirect()->route('login')->withErrors(['timeout' => 'Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.']);
+                }
+            }
+
+            // Cập nhật lại thời gian hoạt động
+            Session::put('last_activity_' . $currentGuard, now());
+        }
 
         return $next($request);
     }

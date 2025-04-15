@@ -133,31 +133,19 @@
                     @endif
                     </div>
                     <div class="card-body">
-                        <form action="#" method="POST">
+                        <form method="POST" action="{{ route('login.submit') }}">
                             @csrf
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email:</label>
-                                <input type="email" id="email" name="email" class="form-control" required placeholder="Enter your email">
-                                @if ($errors->has('email'))
-                                    <span class="text-danger">{{ $errors->first('email') }}</span>
-                                @endif
+                                <input type="email" class="form-control" name="email" value="{{ old('email') }}" required>
                             </div>
+    
                             <div class="mb-3">
-                                <label for="password" class="form-label">Password:</label>
-                                <input type="password" id="password" name="password" class="form-control" required placeholder="Enter your password">
-                                @if ($errors->has('password'))
-                                    <span class="text-danger">{{ $errors->first('password') }}</span>
-                                @endif
+                                <label for="password" class="form-label">Mật khẩu:</label>
+                                <input type="password" class="form-control" name="password" required>
                             </div>
-                            <div class="mb-3 form-check d-flex justify-content-between">
-                                <div>
-                                    <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                                    <label class="form-check-label" for="remember">Nhớ tôi</label>
-                                </div>
-                            </div>
-                            
-
-                            <div class="d-grid mt-3">
+    
+                            <div class="d-grid">
                                 <button type="submit" class="btn btn-primary">Đăng nhập</button>
                             </div>
                         </form>

@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-class GiangVien extends Model
+use Illuminate\Foundation\Auth\User as Authenticatable;
+class GiangVien extends Authenticatable
 {
     use HasFactory;
     protected $table = 'giang_viens';
@@ -32,9 +32,14 @@ class GiangVien extends Model
     }
 
     public function lichBaoCaos()
-{
-    return $this->belongsToMany(LichBaoCao::class, 'lich_bao_cao_giang_vien', 'giang_vien_id', 'lich_bao_cao_id');
-}
+    {
+        return $this->belongsToMany(LichBaoCao::class, 'lich_bao_cao_giang_vien', 'giang_vien_id', 'lich_bao_cao_id');
+    }
+
+    public function baoCao()
+    {
+        return $this->hasMany(BaoCao::class, 'giangVien_id', 'maGiangVien');
+    }
 
 
 
@@ -42,4 +47,6 @@ class GiangVien extends Model
     {
         return 'maGiangVien';
     }  
+
+
 }
