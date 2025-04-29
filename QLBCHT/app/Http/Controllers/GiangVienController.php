@@ -103,14 +103,6 @@ private function getDataTable()
         return redirect()->route('giangvien.index')->with('success', 'Thêm giảng viên thành công!');
     }
     
- 
-    // public function edit(GiangVien $giangvien)
-    // {
-    //     //$giangvien = GiangVien::where('maGiangVien', $maGiangVien)->firstOrFail();
-    //     $chucvus = ChucVu::all(); 
-    //     $bomons = BoMon::all(); 
-    //     return view('giangvien.edit', compact('giangvien', 'chucvus', 'bomons'));
-    // }
     public function edit( $maGiangVien)
     {
         $giangvien = GiangVien::where('maGiangVien', $maGiangVien)->firstOrFail();
@@ -119,65 +111,33 @@ private function getDataTable()
         return view('giangvien.edit', compact('giangvien', 'chucvus', 'bomons'));
     }
     
-    // public function update(UpdateGiangVienRequest $request, $maGiangVien)
-    // {
-
-    //     $giangvien = GiangVien::where('maGiangVien', $maGiangVien)->firstOrFail();
-    
-    //     $data = $request->validated();
-    
-    //     if ($request->hasFile('anhDaiDien')) {
-    //         if ($giangvien->anhDaiDien) {
-    //             Storage::disk('public')->delete($giangvien->anhDaiDien);
-    //         }
-    //         $path = $request->file('anhDaiDien')->store('anhDaiDiens', 'public');
-    //         $data['anhDaiDien'] = $path;
-    //     }
-
-    //     // Xử lý mật khẩu: chỉ cập nhật nếu người dùng nhập mới
-    //     if (!empty($request->matKhau)) {
-    //         $data['matKhau'] = bcrypt($request->matKhau);
-    //     } else {
-    //         unset($data['matKhau']); // Không thay đổi mật khẩu nếu không nhập
-    //     }
-    
-    //     $giangvien->update($data);
-    //     return redirect()->route('giangvien.index')->with('success', 'Cập nhật giảng viên thành công!');
-    // }
 
     public function update(UpdateGiangVienRequest $request, $maGiangVien)
-{
-    $giangvien = GiangVien::where('maGiangVien', $maGiangVien)->firstOrFail();
-    dd($giangvien);
-    $data = $request->validated();
+    {
+        $giangvien = GiangVien::findOrFail($maGiangVien);
+        $data = $request->validated();
 
-    // Xử lý ảnh đại diện
-    if ($request->hasFile('anhDaiDien')) {
-        if ($giangvien->anhDaiDien) {
-            Storage::disk('public')->delete($giangvien->anhDaiDien);
+        // Xử lý ảnh đại diện
+        if ($request->hasFile('anhDaiDien')) {
+            // Xóa ảnh cũ nếu không phải ảnh mặc định
+            if ($giangvien->anhDaiDien && $giangvien->anhDaiDien !== 'anhDaiDiens/anhmacdinh.jpg') {
+                Storage::disk('public')->delete($giangvien->anhDaiDien);
+            }
+    
+            $path = $request->file('anhDaiDien')->store('anhDaiDiens', 'public');
+            $data['anhDaiDien'] = $path;
         }
-        $data['anhDaiDien'] = $request->file('anhDaiDien')->store('anhDaiDiens', 'public');
+
+        // Xử lý mật khẩu (chỉ cập nhật nếu có nhập mới)
+        if ($request->filled('matKhau')) {
+            $data['matKhau'] = bcrypt($request->matKhau);
+        }
+
+        // Cập nhật thông tin giảng viên
+        $giangvien->update($data);  
+
+        return redirect()->route('giangvien.index')->with('success', 'Cập nhật giảng viên thành công!');
     }
-
-    // Xử lý mật khẩu (chỉ cập nhật nếu có nhập mới)
-    if (!empty($request->matKhau)) {
-        $data['matKhau'] = bcrypt($request->matKhau);
-    }
-
-    // Cập nhật thông tin giảng viên
-    $giangvien->update([
-        'ho' => $data['ho'],
-        'ten' => $data['ten'],
-        'email' => $data['email'],
-        'sdt' => $data['sdt'],
-        'chucVu' => $data['chucVu'],
-        'boMon_id' => $data['boMon_id'],
-        'anhDaiDien' => $data['anhDaiDien'] ?? $giangvien->anhDaiDien,
-        'matKhau' => $data['matKhau'] ?? $giangvien->matKhau,
-    ]);
-
-    return redirect()->route('giangvien.index')->with('success', 'Cập nhật giảng viên thành công!');
-}
 
     
 

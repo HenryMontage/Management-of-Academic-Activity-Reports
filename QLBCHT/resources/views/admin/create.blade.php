@@ -25,6 +25,13 @@
                     <form action="{{ route('admin.store') }}" method="POST">
                         @csrf
                         <div class="row g-3">
+                            <div class="col-md-12">
+                                <label for="maAdmin" class="form-label">Mã Quản Trị Viên</label>
+                                <input type="text" class="form-control @error('maAdmin') is-invalid @enderror" id="maAdmin" name="maAdmin" value="{{ old('maAdmin') }}">
+                                @error('maAdmin')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                             {{-- Họ --}}
                             <div class="col-md-6">
                                 <label for="ho" class="form-label">Họ</label>

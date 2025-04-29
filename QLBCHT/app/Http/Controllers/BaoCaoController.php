@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\BaoCao;
+use App\Models\LichBaoCao;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
@@ -48,19 +49,10 @@ class BaoCaoController extends Controller
             }
             return 'Không có file';
         })
-        // ->addColumn('hanhdong', function($row) {
-        //     return view('components.action-buttons', [
-        //         'row' => $row,
-        //         'editRoute' => 'baocao.edit',
-        //         'deleteRoute' => 'baocao.destroy',
-        //         'id' => $row->maBaoCao
-        //     ])->render();
-        // })
-        // ->rawColumns(['file', 'hanhdong'])
         ->addColumn('hanhdong', function($row) {
             $downloadLink = '';
             if ($row->duongDanFile) {
-                $downloadLink = '<a href="'.asset($row->duongDanFile).'" class="btn btn-sm btn-info" target="_blank"><i class="fas fa-download"></i> Tải File</a>';
+                $downloadLink = '<a href="'.asset($row->duongDanFile).'" class="btn btn-sm btn-primary" style="color:#fff" target="_blank"><i class="fas fa-download"></i> Tải File</a>';
             }
         
             $deleteButton = view('components.action-buttons', [
@@ -78,7 +70,8 @@ class BaoCaoController extends Controller
     }
     public function create()
     {
-        return view('baocao.create');
+        $lichBaoCaos = LichBaoCao::all();
+        return view('baocao.create',compact('lichBaoCaos'));
     }
 
     public function store(Request $request)
@@ -88,8 +81,20 @@ class BaoCaoController extends Controller
             'ngayNop' => 'required|date',
             'dinhDang' => 'required|string',
             'tomTat' => 'required|string',
-            'files.*' => 'required|file|mimes:pdf,docx,ppt,pptx|max:20480' // 20MB mỗi file
+            'files.*' => 'required|file|mimes:pdf,docx,ppt,pptx|max:20480', // 20MB mỗi file
+            'lich_bao_cao_id' => 'required|exists:lich_bao_caos,maLich',
         ]);
+
+        $lich = LichBaoCao::find($request->lich_bao_cao_id);
+
+        $hanNop = Carbon::createFromFormat('Y-m-d H:i:s', $lich->hanNgayNop . ' ' . $lich->hanGioNop);
+        $ngayNop = Carbon::now();
+    
+        if ($ngayNop->gt($hanNop)) {
+            return redirect()->back()
+                ->withErrors(['ngayNop' => 'Đã quá hạn nộp báo cáo cho chủ đề này.'])
+                ->withInput();
+        }
 
         $user = Auth::guard('giang_viens')->user();
         $giangVienId = $user->maGiangVien;
@@ -108,6 +113,7 @@ class BaoCaoController extends Controller
             'tomTat' => $request->tomTat,
             'duongDanFile' => 'storage/baocaodanop/' . $fileName,
             'giangVien_id' => $giangVien->maGiangVien,
+            'lich_bao_cao_id' => $request->lich_bao_cao_id,
         ]);
     }
 
@@ -118,8 +124,8 @@ class BaoCaoController extends Controller
     {
         $baoCao = BaoCao::findOrFail($maBaoCao); // dùng maBaoCao
         // Xóa file nếu có
-        if ($baoCao->duongDanFile && file_exists(public_path('storage/' . $baoCao->duongDanFile))) {
-            unlink(public_path('storage/' . $baoCao->duongDanFile));
+        if ($baoCao->duongDanFile && file_exists(public_path($baoCao->duongDanFile))) {
+            unlink(public_path($baoCao->duongDanFile));
         }
         $baoCao->delete();
         return redirect()->back()->with('success', 'Đã xóa báo cáo thành công.');

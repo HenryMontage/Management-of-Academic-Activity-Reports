@@ -16,8 +16,13 @@
                             {{-- Ảnh Đại Diện --}}
                             <div class="text-center">
                                 <label class="form-label">Ảnh Đại Diện Hiện Tại</label><br>
-                                <img src="{{ asset('storage/'.$giangvien->anhDaiDien ?? 'anhDaiDiens/anhmacdinh.jpg') }}" 
-                                     alt="Ảnh đại diện" class="img-thumbnail" width="150">
+                                {{-- <img src="{{ asset('storage/'.$giangvien->anhDaiDien ?? 'anhDaiDiens/anhmacdinh.jpg') }}" 
+                                     alt="Ảnh đại diện" class="img-thumbnail" width="150"> --}}
+                                     <img src="{{ asset('storage/' . ($giangvien->anhDaiDien ?? 'anhDaiDiens/anhmacdinh.jpg')) }}" 
+                                     alt="Ảnh đại diện" 
+                                     class="img-fluid rounded-circle mb-3 shadow" 
+                                     style="width: 150px; height: 150px; object-fit: cover;"
+                                     onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{  urlencode($giangvien->ho . ' ' . $giangvien->ten) }}&background=0D8ABC&color=fff';">
                             </div>
                             <div class="col-md-12">
                                 <label for="anhDaiDien" class="form-label">Ảnh Đại Diện Mới (Không chọn nếu không đổi)</label>

@@ -6,7 +6,7 @@
         <div class="col-md-10 col-lg-8">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h2 class="text-center mb-4">Tạo Lịch Báo Cáo</h2>
+                    <h2 class="text-center mb-4">Tạo Lịch Sinh Hoạt Học Thuật</h2>
 
                     {{-- Hiển thị lỗi nếu có --}}
                     {{-- @if ($errors->any())

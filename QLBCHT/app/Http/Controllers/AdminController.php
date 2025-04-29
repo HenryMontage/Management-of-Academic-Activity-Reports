@@ -2,13 +2,47 @@
 
 namespace App\Http\Controllers;
 use App\Http\Requests\AdminRequest;
+use App\Http\Requests\UpdateAdminRequest;
 use App\Models\Admin;
 use App\Models\Quyen;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use App\Models\GiangVien;
+use App\Models\NhanVienPDBCL;
+use App\Models\LichBaoCao;
+use App\Models\DangKyBaoCao;
+use App\Models\BaoCao;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
+    public function dashboard()
+    {
+        $now = Carbon::now();
+        $startOfMonth = $now->copy()->startOfMonth();
+        $endOfMonth = $now->copy()->endOfMonth();
+        $startOfSemester = $now->month <= 6
+            ? Carbon::create($now->year, 1, 1)
+            : Carbon::create($now->year, 7, 1);
+
+        return view('admin.dashboard', [
+            'tongGiangVien' => GiangVien::count(),
+            'tongNhanVien' => NhanVienPDBCL::count(),
+            'tongAdmin' => Admin::count(),
+            'tongBaoCao' => BaoCao::count(),
+            'baoCaoDuocDuyet' => DangKyBaoCao::where('trangThai', 'Đã Duyệt')->count(),
+            'tongPhieuDangKy' => DangKyBaoCao::count(),
+            'baoCaoTrongThang' => BaoCao::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count(),
+            'baoCaoTrongKy' => LichBaoCao::whereBetween('created_at', [$startOfSemester, $now])->count(),
+
+            // Biểu đồ theo ngày
+            'baoCaoNgay' => BaoCao::selectRaw('DATE(created_at) as ngay, COUNT(*) as soLuong')
+                ->groupBy('ngay')
+                ->orderBy('ngay')
+                ->pluck('soLuong', 'ngay')
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -88,29 +122,14 @@ class AdminController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(AdminRequest $request, Admin $admin)
+    public function update(UpdateAdminRequest $request, $maAdmin)
     {
-        dd($request->ho);
-
-        // $data = [
-        //     'ho' => trim($request->input('ho')), 
-        //     'ten' => trim($request->input('ten')),
-        //     'sdt' => $request->input('sdt'),
-        //     'email' => $request->input('email'),
-        //     'quyen_id' => (int) $request->input('quyen_id'),
-        // ];
-        // if ($request->filled('matKhau')) {
-        //     $data['matKhau'] = bcrypt($request->matKhau);
-        // }
-        // $admin->update($data);
-        $admin->update([
-            'ho' =>  (string) $request->ho,
-            'ten' =>  $request->ten,
-            'sdt' => $request->sdt,
-            'email' => $request->email,
-            'quyen_id' => $request->quyen_id ? (int) $request->quyen_id : null,
-            'matKhau' => $request->filled('matKhau') ? bcrypt($request->matKhau) : $admin->matKhau,
-        ]);        
+        $admin = Admin::findOrFail($maAdmin);
+        $data = $request->validated();
+        if ($request->filled('matKhau')) {
+            $data['matKhau'] = bcrypt($request->matKhau);
+        }
+        $admin->update($data);   
         
         return redirect()->route('admin.index')->with('success', 'Cập nhật admin thành công');
     }

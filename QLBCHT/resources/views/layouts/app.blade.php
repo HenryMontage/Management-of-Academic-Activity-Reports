@@ -1,108 +1,3 @@
-{{-- <!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Bootstrap CSS -->
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css">
-
-    <style>
-        .fs{
-            font-size: 16px;
-        }
-    </style>
-</head>
-<body class="bg-gray-100">
-
-    <div class="flex h-screen">
-
-        <!-- Sidebar -->
-        <aside style="background-color: #2b2a2a" class="bg-dark text-white d-flex flex-column" style="width: 260px; height: 100vh;">
-            <!-- Tiêu đề -->
-            <div style="padding: 10px" class="d-flex align-items-center justify-content-center bg-secondary py-3">
-                <h5 style="font-size: 20px; margin-top:6px;" class=" text-center">Quản lý hệ thống</h5>
-            </div>
-        
-            <!-- Menu -->
-            <nav class="flex-grow-1 px-3 pt-3">
-                <ul class="nav flex-column">
-                    <li class="nav-item mb-2">
-                        <a href="{{ route('admin.dashboard') }}" class="nav-link text-white bg-secondary p-3 rounded" style="font-size: 16px;">
-                            🏠 Trang chủ
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="{{ route('admin.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
-                            👤 Quản trị viên
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="{{ route('giangvien.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
-                            📚 Giảng viên
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="#" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
-                            👨‍💼 Nhân viên
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="{{ route('khoa.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
-                            🏢 Khoa
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="{{ route('bomon.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
-                            📖 Bộ môn
-                        </a>
-                    </li>
-                    <li class="nav-item mb-2">
-                        <a href="{{ route('chucvu.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
-                            📖 Chức vụ
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
-        
-        
-
-        <!-- Main content -->
-        <div class="flex-1 flex flex-col">
-            
-            <!-- Header -->
-            <header class="bg-white shadow-md p-4 flex justify-between items-center">
-                <span class="text-lg font-semibold" style="font-size: 20px">Trang quản trị</span>
-                <div class="flex items-center">
-                    <span class="mr-4">👋 Xin chào, {{ Auth::user()->name ?? 'Admin' }}</span>
-                    <form method="POST" action="">
-                        @csrf
-                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">🚪 Đăng xuất</button>
-                    </form>
-                </div>
-            </header>
-
-            <!-- Page Content -->
-            <main class="flex-1 p-6">
-                @yield('content')
-            </main>
-        </div>
-    </div>
-     <!-- jQuery -->
-     <script src="//code.jquery.com/jquery.js"></script>
-     <!-- DataTables -->
-     <script src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
-     <!-- Bootstrap JavaScript -->
-     <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    @yield('script')
-</body>
-</html> --}}
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -131,14 +26,16 @@
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
     <style>
         :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
+            --primary-color: #005BAA;  /* Màu xanh đặc trưng của NTU */
+            --secondary-color: #0056b3;
+            --text-color: #2b2d42;
+            --background-color: #f8f9fa;
             --sidebar-width: 220px;
         }
 
         body {
-            background-color: #f4f6f9;
-            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            font-family: 'Inter', sans-serif;
             overflow-x: hidden;
         }
 
@@ -149,7 +46,7 @@
             left: 0;
             height: 100vh;
             width: var(--sidebar-width);
-            background-color: #2c3034;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             transition: transform 0.3s ease-in-out;
             z-index: 1040;
             overflow-y: auto;
@@ -200,41 +97,77 @@
         .sidebar-brand {
             padding: 0.8rem;
             text-align: center;
-            background-color: #212529;
+            background-color: rgba(255, 255, 255, 0.1);
             color: #ffffff;
             font-size: 1.5rem;
             font-weight: bold;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-            transition: text-shadow 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .sidebar-brand:hover {
-            text-shadow: 0 0 20px rgba(255, 255, 255, 1);
+            background-color: rgba(255, 255, 255, 0.15);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
 
         .sidebar-menu .nav-link {
-            color: #adb5bd;
+            color: rgba(255, 255, 255, 0.8);
             padding: 0.75rem 1rem;
             transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0.2rem 0;
         }
 
         .sidebar-menu .nav-link:hover,
         .sidebar-menu .nav-link.active {
-            background-color: rgba(185, 177, 177, 0.3);
+            background-color: rgba(255, 255, 255, 0.15);
             color: #ffffff;
+            transform: translateX(5px);
         }
 
         .topbar {
             background-color: #ffffff;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 10px 20px;
+            padding: 15px 25px;
             position: sticky;
             top: 0;
             z-index: 1020;
         }
 
+        .btn-outline-secondary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: var(--primary-color);
+            color: #ffffff;
+        }
+
+        /* User Dropdown */
+        .user-actions .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            color: var(--primary-color);
+        }
+
+        .dropdown-menu {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--background-color);
+            color: var(--primary-color);
+        }
+
+        /* Content area styling */
         .content-wrapper {
-            padding: 20px;
+            padding: 25px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            margin: 20px;
         }
 
         /* Improved Responsive Handling */
@@ -271,7 +204,10 @@
             <!-- Sidebar -->
             <nav class="col sidebar" id="sidebar">
                 <div class="sidebar-brand">
-                    Admin Panel
+                    <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center justify-content-center text-decoration-none px-3">
+                        <img src="{{ asset('anhdaidiens/ntu1.jpg') }}" alt="Logo NTU" style="height: 40px; width: 40px; border-radius: 50%; margin-right: 10px;">
+                        <span class="text-white" style="font-size: 1.7rem; font-weight: 600;">Admin</span>
+                    </a>
                 </div>
                 <div class="sidebar-menu mx-2">
                     <ul class="nav flex-column">
@@ -291,7 +227,7 @@
                             </a>
                         </li>
                         <li class="nav-item mb-2">
-                            <a href="#" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
+                            <a href="{{ route('nhanvien.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
                                 👨‍💼 Nhân viên
                             </a>
                         </li>
@@ -429,3 +365,6 @@
     @yield('script')
 </body>
 </html>
+
+
+

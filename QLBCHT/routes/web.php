@@ -11,8 +11,14 @@ use App\Http\Controllers\NhanVienPDBCLController;
 use App\Http\Controllers\LichBaoCaoController;
 use App\Http\Controllers\BaoCaoController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\BienBanController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\DangKyBaoCaoController;
+use App\Http\Controllers\DuyetDangKyController;
+use App\Http\Controllers\QuenMatKhauController;
+use App\Models\BienBanBaoCao;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -29,20 +35,44 @@ Route::get('/', function () {
 
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('auth.login');
 
+// Hiển thị form nhập mã số
+Route::get('/forgot-password', [QuenMatKhauController::class, 'showForgotForm'])->name('password.request');
+
+// Xử lý gửi mã xác thực
+Route::post('/forgot-password', [QuenMatKhauController::class, 'sendVerificationCode'])->name('password.email');
+
+// Hiển thị form đặt lại mật khẩu
+Route::get('/reset-password', [QuenMatKhauController::class, 'showResetForm'])->name('password.reset');
+
+// Xử lý đặt lại mật khẩu
+Route::post('/reset-password', [QuenMatKhauController::class, 'resetPassword'])->name('password.update');
 
 Route::middleware(['auth:admins', 'session.timeout'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    // Route::get('/admin/dashboard', function () {
+    //     return view('admin.dashboard');
+    // })->name('admin.dashboard');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    
+    Route::prefix('nhanvien')->group(function () {
+        Route::get('/', [NhanVienPDBCLController::class, 'index'])->name('nhanvien.index');
+        Route::get('/create', [NhanVienPDBCLController::class, 'create'])->name('nhanvien.create');
+        Route::post('/store', [NhanVienPDBCLController::class, 'store'])->name('nhanvien.store');
+        Route::get('/{maNV}/edit', [NhanVienPDBCLController::class, 'edit'])->name('nhanvien.edit');
+        Route::put('/{maNV}', [NhanVienPDBCLController::class, 'update'])->name('nhanvien.update');
+        Route::delete('/{maNV}', [NhanVienPDBCLController::class, 'destroy'])->name('nhanvien.destroy');
+    });
   //Routes CRUD Admin
     Route::prefix('admin')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('admin.index'); // Danh sách Admin
         Route::get('/create', [AdminController::class, 'create'])->name('admin.create'); // Form thêm
         Route::post('/store', [AdminController::class, 'store'])->name('admin.store'); // Lưu Admin mới
         Route::get('/{admin}/edit', [AdminController::class, 'edit'])->name('admin.edit'); // Form sửa
-        Route::put('/{admin}', [AdminController::class, 'update'])->name('admin.update'); // Cập nhật Admin
+        Route::put('/{maAdmin}', [AdminController::class, 'update'])->name('admin.update'); // Cập nhật Admin
         Route::delete('/{admin}', [AdminController::class, 'destroy'])->name('admin.destroy'); // Xóa Admin
     });
+
+    
 
     Route::prefix('giangvien')->group(function () {
         Route::get('/', [GiangVienController::class, 'index'])->name('giangvien.index');
@@ -51,6 +81,8 @@ Route::middleware(['auth:admins', 'session.timeout'])->group(function () {
         Route::get('/{maGiangVien}/edit', [GiangVienController::class, 'edit'])->name('giangvien.edit');
         Route::put('/{maGiangVien}', [GiangVienController::class, 'update'])->name('giangvien.update');
         Route::delete('/{maGiangVien}', [GiangVienController::class, 'destroy'])->name('giangvien.destroy');
+        Route::post('/import', [GiangVienController::class, 'import'])->name('giangvien.import');
+
     });
     
     // Routes CRUD Khoa
@@ -82,6 +114,10 @@ Route::middleware(['auth:admins', 'session.timeout'])->group(function () {
         Route::put('/{bomon}', [BoMonController::class, 'update'])->name('bomon.update'); // Cập nhật bộ môn
         Route::delete('/{bomon}', [BoMonController::class, 'destroy'])->name('bomon.destroy'); // Xóa bộ môn
     });
+
+   
+    
+    
 });
 
 Route::middleware(['giangvien_or_nhanvien', 'session.timeout'])->group(function () {
@@ -114,6 +150,43 @@ Route::middleware(['auth:giang_viens', 'session.timeout'])->group(function () {
         Route::put('/{maBaoCao}', [BaoCaoController::class, 'update'])->name('baocao.update'); // Cập nhật báo cáo
         Route::delete('/{maBaoCao}', [BaoCaoController::class, 'destroy'])->name('baocao.destroy'); // Xóa báo cáo
     });
+
+    Route::prefix('dangkybaocao')->group(function () {
+        Route::get('/', [DangKyBaoCaoController::class, 'index'])->name('dangkybaocao.index');
+        Route::get('/create', [DangKyBaoCaoController::class, 'create'])->name('dangkybaocao.create');
+        Route::post('/store', [DangKyBaoCaoController::class, 'store'])->name('dangkybaocao.store');
+        Route::delete('/{maDangKyBaoCao}', [DangKyBaoCaoController::class, 'destroy'])->name('dangkybaocao.destroy');
+    
+        // API lấy chi tiết lịch báo cáo
+        Route::get('/get-lich/{id}', [DangKyBaoCaoController::class, 'getLichBaoCao'])->name('dangkybaocao.getLichBaoCao');
+        Route::get('/export/{lich_id}', [DangKyBaoCaoController::class, 'exportPhieu'])
+     ->name('dangkybaocao.export');
+    });
+
+   
+    
+    
+
+});
+
+Route::middleware(['auth:nhan_vien_p_d_b_c_ls', 'session.timeout'])->group(function () {    
+    Route::prefix('duyet-dang-ky')->group(function () {
+        Route::get('/', [DuyetDangKyController::class, 'index'])->name('duyet.index');
+        Route::post('/{maDangKy}/duyet', [DuyetDangKyController::class, 'duyet'])->name('duyet.duyet');
+        Route::post('/{maDangKy}/tu-choi', [DuyetDangKyController::class, 'tuChoi'])->name('duyet.tuchoi');
+        Route::get('/da-duyet', [DuyetDangKyController::class, 'daDuyet'])->name('duyet.daduyet');
+
+    });
+
+    Route::prefix('bienban')->group(function () {
+        Route::get('/', [BienBanController::class, 'index'])->name('bienban.index'); // Xem danh sách báo cáo
+        Route::get('/create', [BienBanController::class, 'create'])->name('bienban.create'); // Trang tạo báo cáo mới
+        Route::post('/', [BienBanController::class, 'store'])->name('bienban.store'); // Lưu báo cáo mới
+        Route::get('/{maBienBan}/edit', [BienBanController::class, 'edit'])->name('bienban.edit'); // Trang chỉnh sửa báo cáo
+        Route::put('/{maBienBan}', [BienBanController::class, 'update'])->name('bienban.update'); // Cập nhật báo cáo
+        Route::delete('/{maBienBan}', [BienBanController::class, 'destroy'])->name('bienban.destroy'); // Xóa báo cáo
+
+    });
     
 
 });
@@ -133,6 +206,9 @@ Route::post('/logout', function () {
     Session::flush();
     return redirect()->route('login');
 })->name('logout');
+
+
+
 
 
 

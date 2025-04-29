@@ -67,17 +67,23 @@
 @section('content')
 <div class="card shadow mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="m-0 font-weight-bold text-primary">Danh Sách Lịch Báo Cáo</h5>
+        <h5 class="m-0 font-weight-bold text-primary">Danh Sách Lịch Sinh Hoạt Học Thuật</h5>
+        @php 
+            $guard = session('current_guard');
+            $user = Auth::guard($guard)->user();
+        @endphp
+        @if($user->chucVu != 1)
         <a href="{{ route('lichbaocao.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Thêm Lịch Báo Cáo
+            <i class="fas fa-plus"></i> Thêm Lịch 
         </a>
+        @endif
     </div>
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" id="lichBaoCaoTable" width="100%">
                 <thead class="thead-light">
                     <tr>
-                        <th>#</th>
+                        {{-- <th>#</th> --}}
                         <th>Chủ Đề</th>
                         <th>Ngày Báo Cáo</th>
                         <th>Giờ Báo Cáo</th>
@@ -103,7 +109,7 @@
             serverSide: true,
             ajax: "{{ route('lichbaocao.index') }}",
             columns: [
-                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                // { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                 { data: 'chuDe', name: 'chuDe' },
                 { data: 'ngayBaoCao', name: 'ngayBaoCao' },
                 { data: 'gioBaoCao', name: 'gioBaoCao' },

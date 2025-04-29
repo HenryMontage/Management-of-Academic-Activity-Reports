@@ -2,7 +2,7 @@
 @section('page-title', "Trang Chủ")
 @section('content')
 <div class="container mt-5 text-center">
-    <h1 class="display-4">Trang Chủ Người dùng</h1>
+    <h1 class="display-4">Trang Chủ</h1>
     <p class="lead mt-4">
         Chào mừng bạn đến với phần mềm <strong>Quản lý báo cáo</strong>. 
         Đây là hệ thống hỗ trợ giảng viên và nhân viên trong việc quản lý, tạo lập và theo dõi các báo cáo công việc, học thuật và hành chính.

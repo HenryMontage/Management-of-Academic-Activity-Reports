@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('nhan_vien_p_d_b_c_ls', function (Blueprint $table) {
-            $table->increments('maNV');
-            $table->string('ho');
-            $table->string('ten');
-            $table->string('sdt')->unique();
-            $table->string('email')->unique();
-            $table->string('matKhau');
+            $table->string('maNV')->primary()->unique();
+            $table->string('ho', 20);
+            $table->string('ten', 20);            
+            $table->string('sdt', 15)->unique();
+            $table->string('email', 100)->unique();
+            $table->string('matKhau', 100);
             $table->unsignedInteger('quyen_id')->nullable();
             $table->foreign('quyen_id')->references('maQuyen')->on('quyens')->onDelete('SET NULL');
             $table->timestamps();

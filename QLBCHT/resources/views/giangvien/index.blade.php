@@ -51,6 +51,11 @@
 <div class="card shadow mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="m-0 font-weight-bold text-primary">Danh Sách Giảng Viên</h5>
+        {{-- <form action="{{ route('giangvien.import') }}" method="POST" enctype="multipart/form-data" class="d-inline ms-2">
+            @csrf
+            <input type="file" name="file" accept=".xlsx,.csv" required class="form-control d-inline-block w-auto">
+            <button type="submit" class="btn btn-success btn-lg">Import Excel</button>
+        </form> --}}
         <a href="{{ route('giangvien.create') }}" class="btn btn-primary">
             <i class="fas fa-plus"></i> Thêm Giảng Viên
         </a>

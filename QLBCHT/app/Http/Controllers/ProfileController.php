@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 class ProfileController extends Controller
 {
     public function show()
@@ -47,11 +48,15 @@ class ProfileController extends Controller
     }
 
     if ($request->hasFile('anhDaiDien')) {
-        $image = $request->file('anhDaiDien');
-        $imageName = time() . '.' . $image->getClientOriginalExtension();
-        $image->move(public_path('anhDaiDiens'), $imageName);
-        $data['anhDaiDien'] = $imageName;
+        // Xóa ảnh cũ nếu không phải ảnh mặc định
+        if ($user->anhDaiDien && $user->anhDaiDien !== 'anhDaiDiens/anhmacdinh.jpg') {
+            Storage::disk('public')->delete($user->anhDaiDien);
+        }
+
+        $path = $request->file('anhDaiDien')->store('anhDaiDiens', 'public');
+        $data['anhDaiDien'] = $path;
     }
+
 
     $user->fill($data)->save();
 

@@ -15,11 +15,11 @@ return new class extends Migration
 
         Schema::create('giang_viens', function (Blueprint $table) {
             $table->string('maGiangVien')->primary()->unique();
-            $table->string('ho');
-            $table->string('ten');
-            $table->string('email')->unique();
-            $table->string('sdt')->unique();
-            $table->string('matKhau');
+            $table->string('ho', 20);
+            $table->string('ten', 20);            
+            $table->string('sdt', 15)->unique();
+            $table->string('email', 100)->unique();
+            $table->string('matKhau', 100);
             $table->unsignedInteger('chucVu')->nullable();
             $table->foreign('chucVu')->references('maChucVu')->on('chuc_vus')->onDelete('SET NULL');
             $table->string('boMon_id')->nullable();

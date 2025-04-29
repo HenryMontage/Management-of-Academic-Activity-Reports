@@ -90,7 +90,7 @@
     ajax: '{{ route("baocao.index") }}', // Đảm bảo đúng URL
     columns: [
         { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-        { data: 'tenBaoCao', name: 'tenBaoCao' },
+        { data: 'tenBaoCao', name: 'tenBaoCao', width: '250px' },
         { data: 'ngayNop', name: 'ngayNop' },
         { data: 'dinhDang', name: 'dinhDang' },
         { data: 'tomTat', name: 'tomTat' },

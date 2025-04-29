@@ -17,6 +17,9 @@ class AdminRequest extends FormRequest
     public function rules()
     {
         return [
+            'maAdmin' => $this->isMethod('post') 
+            ? 'required|string|max:20|unique:admins,maAdmin' 
+            : 'sometimes|string|max:20',
             'ho' => 'required|string|max:255',
             'ten' => 'required|string|max:255',
             'sdt' => 'required|digits:10|unique:admins,sdt,' . $this->route('admin') . ',maAdmin',

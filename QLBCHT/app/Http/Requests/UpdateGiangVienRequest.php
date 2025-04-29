@@ -22,7 +22,7 @@ class UpdateGiangVienRequest extends FormRequest
      */
     public function rules(): array
 {
-    $maGiangVien = $this->route('giangvien');
+    $maGiangVien = $this->route('maGiangVien');
     $giangVien = GiangVien::findOrFail($maGiangVien);
 
     return [
@@ -42,7 +42,7 @@ class UpdateGiangVienRequest extends FormRequest
                 ? Rule::unique('giang_viens', 'sdt')->ignore($maGiangVien, 'maGiangVien')
                 : '',
         ],
-        'matKhau' => 'nullable|string|min:8|confirmed',
+        'matKhau' => 'nullable|string|min:8',
         'chucVu' => 'nullable|exists:chuc_vus,maChucVu',
         'boMon_id' => 'nullable|exists:bo_mons,maBoMon',
         'anhDaiDien' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',

@@ -8,7 +8,9 @@ use App\Models\BoMon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\LichBaoCaoRequest;
-
+use App\Mail\ThongBaoLichBaoCao;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 class LichBaoCaoController extends Controller
 {
     /**
@@ -31,6 +33,7 @@ class LichBaoCaoController extends Controller
 
 private function getDataTable()
 {
+    
     $lichBaoCaos = LichBaoCao::with('giangVienPhuTrach', 'boMon');
 
     return DataTables::of($lichBaoCaos)
@@ -52,12 +55,16 @@ private function getDataTable()
             })->implode(', ');
         })
         ->addColumn('hanhdong', function($lich) {
+            $guard = session('current_guard');
+            $user = Auth::guard($guard)->user();
+            if ($user->chucVu != 1) {
             return view('components.action-buttons', [
                 'row' => $lich,
                 'editRoute' => 'lichbaocao.edit',
                 'deleteRoute' => 'lichbaocao.destroy',
                 'id' => $lich->maLich
             ])->render();
+            }
         })
         ->rawColumns(['hanhdong'])
         ->make(true);
@@ -86,7 +93,11 @@ private function getDataTable()
         $lichBaoCao = LichBaoCao::create($request->validated());
         // Gán nhiều giảng viên vào lịch báo cáo
         $lichBaoCao->giangVienPhuTrach()->sync($request->giangVienPhuTrach);
-
+        
+        foreach ($lichBaoCao->giangVienPhuTrach as $gv) {
+            Mail::to($gv->email)->queue(new ThongBaoLichBaoCao($lichBaoCao));
+        }
+        
         return redirect()->route('lichbaocao.index')->with('success', 'Lịch báo cáo được tạo thành công.');
     }
 

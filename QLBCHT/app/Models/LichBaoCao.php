@@ -22,4 +22,14 @@ class LichBaoCao extends Model
         return $this->belongsTo(BoMon::class, 'boMon_id', 'maBoMon');
     }
 
+    public function baoCaos() {
+        return $this->hasMany(BaoCao::class, 'lich_bao_cao_id');
+    }
+
+    public function bienBanBaoCaos()
+    {
+        return $this->hasMany(BienBanBaoCao::class, 'lichBaoCao_id', 'maLich');
+    }
+
+
 }

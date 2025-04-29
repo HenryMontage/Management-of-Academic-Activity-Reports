@@ -20,8 +20,8 @@ class Admin extends Authenticatable
     protected $table = 'admins';  
     protected $primaryKey = 'maAdmin';  // Đặt maAdmin làm khóa chính
 
-    public $incrementing = true;  // Vì maAdmin là auto-increment
-    protected $keyType = 'int';   // Kiểu int
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     public $timestamps = true;  
 

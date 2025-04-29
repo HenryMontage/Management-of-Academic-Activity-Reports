@@ -10,5 +10,18 @@ class DangKyBaoCao extends Model
     use HasFactory;
     protected $table = 'dang_ky_bao_caos';
     protected $primaryKey = 'maDangKyBaoCao';
-    protected $fillable = ['ngayDangKy', 'trangThai', 'lichBaoCao_id', 'baoCao_id', 'ketQuaGopY'];
+    public $incrementing = true;
+    protected $fillable = ['maDangKyBaoCao','ngayDangKy', 'trangThai', 'lichBaoCao_id', 'baoCao_id', 'ketQuaGopY'];
+    public function baoCaos()
+    {
+        return $this->belongsToMany(BaoCao::class, 'bao_cao_dang_ky_bao_caos', 'maDangKyBaoCao', 'maBaoCao');
+    }
+
+    public function lichBaoCao()
+    {
+        return $this->belongsTo(LichBaoCao::class, 'lichBaoCao_id', 'maLich');
+    }
+
 }
+
+

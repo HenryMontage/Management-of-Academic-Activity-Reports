@@ -40,13 +40,9 @@ class GiangVien extends Authenticatable
     {
         return $this->hasMany(BaoCao::class, 'giangVien_id', 'maGiangVien');
     }
-
-
-
     public function getRouteKeyName()
     {
         return 'maGiangVien';
     }  
-
 
 }

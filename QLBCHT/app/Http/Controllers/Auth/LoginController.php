@@ -19,36 +19,42 @@ class LoginController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-    
-        $credentials = $request->only('email', 'password');
-    
-        if (Auth::guard('admins')->attempt($credentials)) {
-            Session::put('last_activity_admins', now());
-            Session::put('current_guard', 'admins'); // 👈 THÊM DÒNG NÀY
-            return redirect()->route('admin.dashboard');
-        }
-    
-        if (Auth::guard('giang_viens')->attempt($credentials)) {
-            Session::put('last_activity_giang_viens', now());
-            Session::put('current_guard', 'giang_viens'); // 👈 THÊM DÒNG NÀY
-            return redirect()->route('user.dashboard');
-        }
-    
-        if (Auth::guard('nhan_vien_p_d_b_c_ls')->attempt($credentials)) {
-            Session::put('last_activity_nhan_vien_p_d_b_c_ls', now());
-            Session::put('current_guard', 'nhan_vien_p_d_b_c_ls'); // 👈 THÊM DÒNG NÀY
-            return redirect()->route('user.dashboard');
-        }
-    
-        return back()->withErrors([
-            'email' => 'Email hoặc mật khẩu không chính xác.',
-        ]);
+{
+    $request->validate([
+        'ma' => 'required',
+        'password' => 'required',
+    ]);
+
+    $ma = $request->input('ma');
+    $password = $request->input('password');
+
+    // Thử đăng nhập với admin
+    if (Auth::guard('admins')->attempt(['maAdmin' => $ma, 'password' => $password])) {
+        Session::put('last_activity_admins', now());
+        Session::put('current_guard', 'admins');
+        return redirect()->route('admin.dashboard');
     }
+
+    // Thử đăng nhập với giảng viên
+    if (Auth::guard('giang_viens')->attempt(['maGiangVien' => $ma, 'password' => $password])) {
+        Session::put('last_activity_giang_viens', now());
+        Session::put('current_guard', 'giang_viens');
+        return redirect()->route('user.dashboard');
+    }
+
+    // Thử đăng nhập với nhân viên phòng đảm bảo chất lượng
+    if (Auth::guard('nhan_vien_p_d_b_c_ls')->attempt(['maNV' => $ma, 'password' => $password])) {
+        Session::put('last_activity_nhan_vien_p_d_b_c_ls', now());
+        Session::put('current_guard', 'nhan_vien_p_d_b_c_ls');
+        return redirect()->route('user.dashboard');
+    }
+
+    // Nếu không đăng nhập được
+    return back()->withErrors([
+        'ma' => 'Mã số hoặc mật khẩu không chính xác.',
+    ]);
+}
+
     
 
 

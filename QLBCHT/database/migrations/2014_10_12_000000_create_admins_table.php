@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('admins', function (Blueprint $table) {
-            $table->increments('maAdmin');
-            $table->string('ho');
-            $table->string('ten');
-            $table->string('sdt')->unique();
-            $table->string('email')->unique();
-            $table->string('matKhau');
+            $table->string('maAdmin')->primary()->unique();
+            $table->string('ho', 20);
+            $table->string('ten', 20);            
+            $table->string('sdt', 15)->unique();
+            $table->string('email', 100)->unique();
+            $table->string('matKhau', 100);
             $table->unsignedInteger('quyen_id')->nullable();
             $table->foreign('quyen_id')->references('maQuyen')->on('quyens')->onDelete('SET NULL');
             $table->timestamps();
@@ -27,17 +27,19 @@ return new class extends Migration
 
         Schema::enableForeignKeyConstraints();
 
-        // DB::table('admins')->insert([
-        //     [
-        //         'ho' => 'Nguyễn Hoàng',
-        //         'ten' => 'Anh',
-        //         'sdt' => '023215458',
-        //         'email' => 'hoanganh123@gmail.com',
-        //         'matKhau' => bcrypt('12345678'),
-        //         'created_at' => now(),
-        //         'updated_at' => now(),
-        //     ],
-        // ]);
+        // Insert dữ liệu admin mặc định
+        DB::table('admins')->insert([
+            [
+                'maAdmin' => 'AD001', // thêm maAdmin vì giờ nó là PRIMARY KEY
+                'ho' => 'Nguyễn Hoàng',
+                'ten' => 'Anh',
+                'sdt' => '023215458',
+                'email' => 'hoanganh123@gmail.com',
+                'matKhau' => bcrypt('12345678'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
     }
 
     /**
