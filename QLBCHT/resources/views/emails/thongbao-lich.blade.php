@@ -20,9 +20,9 @@
             <p>Có lịch sinh hoạt học thuật mới! Vui lòng kiểm tra và duyệt trong hệ thống.</p>
 
             <div style="background-color: #f8f9fa; border-left: 5px solid #3498db; padding: 15px; margin: 20px 0;">
-                <p><strong>👤 Chủ đề:</strong> {{ $lichBaoCao->chuDe}}</p>
+                <p><strong>🏫 Chủ đề:</strong> {{ $lichBaoCao->chuDe}}</p>
                 <p><strong>📅 Ngày tổ chức:</strong>{{ $lichBaoCao->ngayBaoCao}} </p>
-                <p><strong>🏫 Hạn nộp báo cáo:</strong> {{ $lichBaoCao->hanNgayNop}}</p>
+                <p><strong>📅 Hạn nộp báo cáo:</strong> {{ $lichBaoCao->hanNgayNop}}</p>
             </div>
 
             <div style="text-align: center; margin: 30px 0;">

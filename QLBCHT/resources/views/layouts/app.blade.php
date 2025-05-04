@@ -212,11 +212,37 @@
                 <div class="sidebar-menu mx-2">
                     <ul class="nav flex-column">
                         <li class="nav-item mb-2">
-                            <a href="{{ route('admin.dashboard') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
+                            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} text-white p-3 rounded" style="font-size: 16px;">
                                 🏠 Trang chủ
                             </a>
                         </li>
-                        <li class="nav-item mb-2">
+                        @php
+                            $quyen = auth()->user()->quyen ?? auth()->user()->chucVu->quyen ?? null;
+                            $dsQuyen = $quyen?->nhomRoute ?? [];
+                            $menuItems = [
+                                'admin'     => ['👤 Quản trị viên', 'admin.index'],
+                                'giangvien' => ['📚 Giảng viên', 'giangvien.index'],
+                                'nhanvien'  => ['👨‍💼 PĐBCL', 'nhanvien.index'],
+                                'khoa'      => ['🏢 Khoa', 'khoa.index'],
+                                'bomon'     => ['📖 Bộ môn', 'bomon.index'],
+                                'chucvu'    => ['📖 Chức vụ', 'chucvu.index'],
+                                'quyen'     => ['📖 Phân quyền', 'quyen.index'],
+                                'email'     => ['📧 Email','email-settings.index'],
+                            ];
+                        @endphp
+
+                        @foreach ($menuItems as $key => [$label, $route])
+                            @if(in_array($key, $dsQuyen))
+                                <li class="nav-item">
+                                    <a href="{{ route($route) }}" class="nav-link {{ request()->routeIs($route) ? 'active' : '' }} text-white rounded" style="font-size: 16px;">
+                                        {{ $label }}
+                                    </a>
+                                </li>
+                               
+                            @endif
+                        @endforeach
+                        
+                        {{-- <li class="nav-item mb-2">
                             <a href="{{ route('admin.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
                                 👤 Quản trị viên
                             </a>
@@ -246,6 +272,12 @@
                                 📖 Chức vụ
                             </a>
                         </li>
+                        <li class="nav-item mb-2">
+                            <a href="{{ route('quyen.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
+                                📖 Phân quyền
+                            </a>
+                        </li> --}}
+
                     </ul>
                 </div>
             </nav>

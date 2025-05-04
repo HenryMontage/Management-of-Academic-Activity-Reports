@@ -67,6 +67,8 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'giangvien_or_nhanvien' => \App\Http\Middleware\GiangVienOrNhanVien::class,
         'session.timeout' => \App\Http\Middleware\SessionTimeout::class,
+        'kiemtraquyen' => \App\Http\Middleware\KiemTraQuyen::class,
+        'custom.session' => \App\Http\Middleware\CustomSessionMiddleware::class,
 
     ];
 }

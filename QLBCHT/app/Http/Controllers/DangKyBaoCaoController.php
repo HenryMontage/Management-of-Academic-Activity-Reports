@@ -55,6 +55,7 @@ class DangKyBaoCaoController extends Controller
 
     public function create()
     {
+        $daDangKyIds = DangKyBaoCao::pluck('lichBaoCao_id')->toArray();
         $giangVienId = Auth::guard('giang_viens')->user()->maGiangVien;
     
         $baoCaos = BaoCao::whereNotNull('lich_bao_cao_id')->get();
@@ -63,7 +64,7 @@ class DangKyBaoCaoController extends Controller
 
         $giangViens = GiangVien::all();
     
-        return view('dangkybaocao.create', compact('baoCaos', 'lichBaoCaos','giangViens'));
+        return view('dangkybaocao.create', compact('baoCaos', 'lichBaoCaos','giangViens', 'daDangKyIds'));
     }
     
     
@@ -76,15 +77,20 @@ class DangKyBaoCaoController extends Controller
             'baoCao_ids.*' => 'exists:bao_caos,maBaoCao',
         ]);
 
-        // $dangKy = DangKyBaoCao::create([
-        //     'ngayDangKy' => Carbon::now(),
-        //     'trangThai' => 'Chờ Duyệt',
-        //     'lichBaoCao_id' => $validated['lichBaoCao_id'],
-        //     'baoCao_id' => $validated['baoCao_id'],
-        // ]);
+           // Kiểm tra nếu lịch báo cáo này đã được đăng ký
+        if ($validated['lichBaoCao_id']) {
+            $exists = DangKyBaoCao::where('lichBaoCao_id', $validated['lichBaoCao_id'])->exists();
+
+            if ($exists) {
+                return redirect()->back()->withInput()->withErrors([
+                    'lichBaoCao_id' => 'Chủ đề này đã được đăng ký rồi!',
+                ]);
+            }
+        }
+
         $dangKy = DangKyBaoCao::create([
             'ngayDangKy' => Carbon::now(),
-            'trangThai' => 'Chờ Duyệt',
+            'trangThai' => 'Chờ Xác Nhận',
             'lichBaoCao_id' => $validated['lichBaoCao_id'],
         ]);
 
@@ -103,7 +109,7 @@ class DangKyBaoCaoController extends Controller
 
         }
 
-        return redirect()->route('dangkybaocao.index')->with('success', 'Đăng ký báo cáo thành công');
+        return redirect()->route('dangkybaocao.index')->with('success', 'Đăng ký     thành công');
     }
 
     public function exportPhieu($maDangKyBaoCao)

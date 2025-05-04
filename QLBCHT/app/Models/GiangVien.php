@@ -22,9 +22,9 @@ class GiangVien extends Authenticatable
         return $this->matKhau;
     }
     
-    public function chucVu()
+    public function chucVuObj()
     {
-        return $this->belongsTo(ChucVu::class, 'chucVu', 'maChucVu');
+        return $this->belongsTo(ChucVu::class,'chucVu', 'maChucVu');
     }
     public function boMon()
     {

@@ -11,7 +11,7 @@
     <link href="https://cdn.datatables.net/2.0.0/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <style>
@@ -21,7 +21,10 @@
             --hover-blue: #2196F3;
             --text-dark: #2C3E50;
             --bg-light: #F8FAFC;
+            --bg-color: #ffffff;
+            --text-color: #000000;
         }
+
 
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -69,6 +72,7 @@
             padding: 2rem !important;
             margin-top: 2rem;
             margin-bottom: 2rem;
+            max-width: 1250px !important;
         }
 
         /* Dropdown Styling */
@@ -226,7 +230,11 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    @auth('giang_viens')
+                    <?php 
+                        // $guard = session('current_guard');
+                        // $user = Auth::guard($guard)->user();    
+                    ?>
+                    {{-- @auth('giang_viens')
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('lichbaocao.index') ? 'active' : '' }}" href="{{ route('lichbaocao.index') }}">
                             <i class="fas fa-calendar-alt me-1"></i> Lịch sinh hoạt học thuật
@@ -237,22 +245,11 @@
                             <i class="fas fa-file-alt me-1"></i> Báo cáo
                         </a>
                     </li>
+                   
+                    @if($user->chucVu == 3 || $user ->chucVu == 4)
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('dangkybaocao.index') ? 'active' : '' }}" href="{{ route('dangkybaocao.index') }}">
                             <i class="fas fa-edit me-1"></i> Đăng ký báo cáo
-                        </a>
-                    </li>
-                   
-                    @endauth
-                    @auth('nhan_vien_p_d_b_c_ls')
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('duyet.index') ? 'active' : '' }}" href="{{ route('duyet.index') }}">
-                            <i class="fas fa-check-circle me-1"></i> Duyệt phiếu
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('duyet.daduyet') ? 'active' : '' }}" href="{{ route('duyet.daduyet') }}">
-                            <i class="fas fa-clipboard-check me-1"></i> Phiếu đã duyệt
                         </a>
                     </li>
                     <li class="nav-item">
@@ -260,14 +257,51 @@
                             <i class="fas fa-calendar-alt me-1"></i> Biên bản
                         </a>
                     </li>
-
+                    @endif
+                   
                     @endauth
+                    @auth('nhan_vien_p_d_b_c_ls')
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('duyet.index') ? 'active' : '' }}" href="{{ route('duyet.index') }}">
+                            <i class="fas fa-check-circle me-1"></i> Xác Nhận Phiếu
+                        </a>
+                    </li> 
+                     <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('xacnhan.index') ? 'active' : '' }}" href="{{ route('xacnhan.index') }}">
+                            <i class="fas fa-check-circle me-1"></i> Xác Nhận Biên Bản
+                        </a>
+                    </li>
+                    @endauth --}}
+                        @php
+                        $guard = session('current_guard');
+                        $user = Auth::guard($guard)->user(); 
+                        $gv = \App\Models\GiangVien::with('chucVuObj.quyen')->find($user->maGiangVien);
+
+                             $quyen = $current_quyen ?? auth()->user()->quyen ?? auth()->user()->chucVu->quyen ?? null;
+                             $dsQuyen =  $user->quyen?->nhomRoute ?? $gv->chucVuObj?->quyen?->nhomRoute ?? [];
+                            $menuItems = [
+                                'lichbaocao'     => ['<i class="fas fa-calendar-alt me-1"></i> Lịch sinh hoạt học thuật', 'lichbaocao.index'],
+                                'baocao'         => ['<i class="fas fa-file-alt me-1"></i> Báo cáo', 'baocao.index'],
+                                'dangkybaocao'   => ['<i class="fas fa-edit me-1"></i> Đăng ký báo cáo', 'dangkybaocao.index'],
+                                'bienban'        => ['<i class="fas fa-calendar-alt me-1"></i> Biên bản', 'bienban.index'],
+                                'duyet'   => ['<i class="fas fa-check-circle me-1"></i> Xác Nhận Phiếu', 'duyet.index'],
+                                'xacnhan' => ['<i class="fas fa-check-circle me-1"></i> Xác Nhận Biên Bản', 'xacnhan.index'],
+                            ];
+                        @endphp
+
+                        @foreach ($menuItems as $key => [$label, $route])
+                            @if(in_array($key, $dsQuyen))
+
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs($route) ? 'active' : '' }}" href="{{ route($route) }}">
+                                        {!! $label !!}
+                                    </a>
+                                </li>
+                            @endif
+                        @endforeach
+                
                 </ul>
                 <ul class="navbar-nav">
-                    @php
-                        $guard = session('current_guard');
-                        $user = Auth::guard($guard)->user();
-                    @endphp
 
                     @if ($user)
                     <li class="nav-item dropdown">

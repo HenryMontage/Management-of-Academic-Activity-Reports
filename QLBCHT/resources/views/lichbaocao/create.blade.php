@@ -20,7 +20,7 @@
                         </div>
                     @endif --}}
 
-                    <form action="{{ route('lichbaocao.store') }}" method="POST">
+                    <form action="{{ route('lichbaocao.store')}}" method="POST">
                         @csrf
                         <div class="row g-3">
                             {{-- Chủ đề --}}

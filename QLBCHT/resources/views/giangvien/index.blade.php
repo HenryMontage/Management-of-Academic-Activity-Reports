@@ -100,7 +100,7 @@
                 },
                 { data: 'email', name: 'email' },
                 { data: 'sdt', name: 'sdt' },
-                { data: 'chucvu', name: 'chucvu' },
+                { data: 'chucVuObj', name: 'chucVuObj' },
                 { data: 'bomon', name: 'bomon' },
                 { data: 'hanhdong', name: 'hanhdong', orderable: false, searchable: false }
             ],

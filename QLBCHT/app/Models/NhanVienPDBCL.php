@@ -26,7 +26,10 @@ class NhanVienPDBCL extends Authenticatable
     
     protected $hidden = ['matKhau'];
     protected $fillable = ['maNV','ho', 'ten', 'sdt', 'email', 'matKhau','anhDaiDien','quyen_id'];
-
+    public function quyen()
+    {
+        return $this->belongsTo(Quyen::class, 'quyen_id', 'maQuyen');
+    }
 
     public function getAuthPassword()
     {
@@ -38,5 +41,5 @@ class NhanVienPDBCL extends Authenticatable
         return $this->hasMany(BienBanBaoCao::class, 'nhanVien_id', 'maNV');
     }
 
-
+    
 }

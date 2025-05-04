@@ -25,12 +25,23 @@
                     <form action="{{ route('admin.store') }}" method="POST">
                         @csrf
                         <div class="row g-3">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <label for="maAdmin" class="form-label">Mã Quản Trị Viên</label>
                                 <input type="text" class="form-control @error('maAdmin') is-invalid @enderror" id="maAdmin" name="maAdmin" value="{{ old('maAdmin') }}">
                                 @error('maAdmin')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label for="quyen_id" class="form-label">Quyền</label>
+                                <select name="quyen_id" id="quyen_id" class="form-control @error('quyen_id') is-invalid @enderror">
+                                    <option value="">-- Chọn Quyền --</option>
+                                    @foreach($quyens as $quyen)
+                                        <option value="{{ $quyen->maQuyen }}" {{ old('quyen_id') == $quyen->maQuyen ? 'selected' : '' }}>
+                                            {{ $quyen->tenQuyen }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                             {{-- Họ --}}
                             <div class="col-md-6">

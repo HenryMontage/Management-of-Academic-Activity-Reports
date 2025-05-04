@@ -17,7 +17,10 @@ use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\DangKyBaoCaoController;
 use App\Http\Controllers\DuyetDangKyController;
 use App\Http\Controllers\QuenMatKhauController;
+use App\Http\Controllers\XacNhanBienBanController;
+use App\Http\Controllers\QuyenController;
 use App\Models\BienBanBaoCao;
+use App\Http\Controllers\EmailSettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,12 +50,13 @@ Route::get('/reset-password', [QuenMatKhauController::class, 'showResetForm'])->
 // Xử lý đặt lại mật khẩu
 Route::post('/reset-password', [QuenMatKhauController::class, 'resetPassword'])->name('password.update');
 
-Route::middleware(['auth:admins', 'session.timeout'])->group(function () {
+Route::middleware(['custom.session','auth:admins', 'kiemtraquyen'])->group(function () {
     // Route::get('/admin/dashboard', function () {
     //     return view('admin.dashboard');
     // })->name('admin.dashboard');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
+   
     
     Route::prefix('nhanvien')->group(function () {
         Route::get('/', [NhanVienPDBCLController::class, 'index'])->name('nhanvien.index');
@@ -70,6 +74,14 @@ Route::middleware(['auth:admins', 'session.timeout'])->group(function () {
         Route::get('/{admin}/edit', [AdminController::class, 'edit'])->name('admin.edit'); // Form sửa
         Route::put('/{maAdmin}', [AdminController::class, 'update'])->name('admin.update'); // Cập nhật Admin
         Route::delete('/{admin}', [AdminController::class, 'destroy'])->name('admin.destroy'); // Xóa Admin
+        // Route::get('/email-settings', [EmailSettingController::class, 'index'])->name('email-settings.index');
+        // Route::get('/email-settings/edit/{id}', [EmailSettingController::class, 'edit'])->name('email-settings.edit');
+        // Route::put('/email-settings/{email}', [EmailSettingController::class, 'update'])->name('email-settings.update');
+        Route::get('/email-settings', [EmailSettingController::class, 'index'])->name('email-settings.index');
+        Route::get('/email-settings/form', [EmailSettingController::class, 'form'])->name('email-settings.form');
+        Route::post('/email-settings/save', [EmailSettingController::class, 'save'])->name('email-settings.save');
+        Route::post('/email-settings/test', [EmailSettingController::class, 'sendTestEmail'])->name('email-settings.test');
+        
     });
 
     
@@ -115,6 +127,15 @@ Route::middleware(['auth:admins', 'session.timeout'])->group(function () {
         Route::delete('/{bomon}', [BoMonController::class, 'destroy'])->name('bomon.destroy'); // Xóa bộ môn
     });
 
+    Route::prefix('quyen')->group(function () {
+        Route::get('/', [QuyenController::class, 'index'])->name('quyen.index'); // Danh sách bộ môn
+        Route::get('/create', [QuyenController::class, 'create'])->name('quyen.create'); // Form thêm bộ môn
+        Route::post('/store', [QuyenController::class, 'store'])->name('quyen.store'); // Lưu bộ môn mới
+        Route::get('/{quyen}/edit', [QuyenController::class, 'edit'])->name('quyen.edit'); // Form sửa bộ môn
+        Route::put('/{quyen}', [QuyenController::class, 'update'])->name('quyen.update'); // Cập nhật bộ môn
+        Route::delete('/{quyen}', [QuyenController::class, 'destroy'])->name('quyen.destroy'); // Xóa bộ môn
+    });
+
    
     
     
@@ -127,10 +148,7 @@ Route::middleware(['giangvien_or_nhanvien', 'session.timeout'])->group(function 
 
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
-});
 
-Route::middleware(['auth:giang_viens', 'session.timeout'])->group(function () {    
-   
     Route::prefix('lichbaocao')->group(function () {
         Route::get('/', [LichBaoCaoController::class, 'index'])->name('lichbaocao.index');
         Route::get('/create', [LichBaoCaoController::class, 'create'])->name('lichbaocao.create');
@@ -139,8 +157,24 @@ Route::middleware(['auth:giang_viens', 'session.timeout'])->group(function () {
         Route::put('/{lichbaocao}', [LichBaoCaoController::class, 'update'])->name('lichbaocao.update');
         Route::delete('/{lichbaocao}', [LichBaoCaoController::class, 'destroy'])->name('lichbaocao.destroy');
         Route::get('/giangviens/{boMon_id}', [LichBaoCaoController::class, 'getGiangVien'])->name('lichbaocao.getGiangVien');// api lấy giảng viên từ bộ môn
+        Route::get('/{lichbaocao}/baocao', [LichBaoCaoController::class, 'getBaoCaoTheoLich'])->name('lichbaocao.baocao');
 
     });
+
+});
+
+Route::middleware(['auth:giang_viens','session.timeout','kiemtraquyen'])->group(function () {    
+   
+    // Route::prefix('lichbaocao')->group(function () {
+    //     Route::get('/', [LichBaoCaoController::class, 'index'])->name('lichbaocao.index');
+    //     Route::get('/create', [LichBaoCaoController::class, 'create'])->name('lichbaocao.create');
+    //     Route::post('/store', [LichBaoCaoController::class, 'store'])->name('lichbaocao.store');
+    //     Route::get('/{lichbaocao}/edit', [LichBaoCaoController::class, 'edit'])->name('lichbaocao.edit');
+    //     Route::put('/{lichbaocao}', [LichBaoCaoController::class, 'update'])->name('lichbaocao.update');
+    //     Route::delete('/{lichbaocao}', [LichBaoCaoController::class, 'destroy'])->name('lichbaocao.destroy');
+    //     Route::get('/giangviens/{boMon_id}', [LichBaoCaoController::class, 'getGiangVien'])->name('lichbaocao.getGiangVien');// api lấy giảng viên từ bộ môn
+
+    // });
 
     Route::prefix('quan-ly-bao-cao')->group(function () {
         Route::get('/', [BaoCaoController::class, 'index'])->name('baocao.index'); // Xem danh sách báo cáo
@@ -163,21 +197,6 @@ Route::middleware(['auth:giang_viens', 'session.timeout'])->group(function () {
      ->name('dangkybaocao.export');
     });
 
-   
-    
-    
-
-});
-
-Route::middleware(['auth:nhan_vien_p_d_b_c_ls', 'session.timeout'])->group(function () {    
-    Route::prefix('duyet-dang-ky')->group(function () {
-        Route::get('/', [DuyetDangKyController::class, 'index'])->name('duyet.index');
-        Route::post('/{maDangKy}/duyet', [DuyetDangKyController::class, 'duyet'])->name('duyet.duyet');
-        Route::post('/{maDangKy}/tu-choi', [DuyetDangKyController::class, 'tuChoi'])->name('duyet.tuchoi');
-        Route::get('/da-duyet', [DuyetDangKyController::class, 'daDuyet'])->name('duyet.daduyet');
-
-    });
-
     Route::prefix('bienban')->group(function () {
         Route::get('/', [BienBanController::class, 'index'])->name('bienban.index'); // Xem danh sách báo cáo
         Route::get('/create', [BienBanController::class, 'create'])->name('bienban.create'); // Trang tạo báo cáo mới
@@ -187,8 +206,31 @@ Route::middleware(['auth:nhan_vien_p_d_b_c_ls', 'session.timeout'])->group(funct
         Route::delete('/{maBienBan}', [BienBanController::class, 'destroy'])->name('bienban.destroy'); // Xóa báo cáo
 
     });
+
+   
+    
     
 
+});
+// 
+Route::middleware(['auth:nhan_vien_p_d_b_c_ls', 'session.timeout','kiemtraquyen'])->group(function () {  
+    //duyet-dang-ky  
+    Route::prefix('duyet')->group(function () {
+        Route::get('/', [DuyetDangKyController::class, 'index'])->name('duyet.index');
+        Route::post('/{maDangKy}/duyet', [DuyetDangKyController::class, 'duyet'])->name('duyet.duyet');
+        Route::post('/{maDangKy}/tu-choi', [DuyetDangKyController::class, 'tuChoi'])->name('duyet.tuchoi');
+        Route::get('/da-duyet', [DuyetDangKyController::class, 'daDuyet'])->name('duyet.daduyet');
+
+    });
+    
+    //xac-nhan-bien-ban
+    Route::prefix('xacnhan')->group(function () {
+        Route::get('/', [XacNhanBienBanController::class, 'index'])->name('xacnhan.index');
+        Route::post('/{maBienBan}/xac-nhan', [XacNhanBienBanController::class, 'xacNhan'])->name('xacnhan.xacnhan');
+        Route::post('/{maBienBan}/tu-choi', [XacNhanBienBanController::class, 'tuChoi'])->name('xacnhan.tuchoi');
+        Route::get('/da-xac-nhan', [XacNhanBienBanController::class, 'daXacNhan'])->name('xacnhan.daxacnhan');
+
+    });
 });
 
 

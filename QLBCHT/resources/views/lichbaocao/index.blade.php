@@ -1,69 +1,12 @@
 @extends('layouts.user')
 
-{{-- @section('content')
-<div class="container py-3">
-    <h1 class="mb-4 text-center">Danh Sách Lịch Báo Cáo</h1>
-    
-    <div class="d-flex justify-content-end mb-3">
-        <a href="{{ route('lichbaocao.create') }}" class="btn btn-primary">Tạo Lịch Báo Cáo Mới</a>
-    </div>
-
-    @if($lichBaoCaos->isEmpty())
-        <div class="alert alert-warning text-center">Chưa có lịch báo cáo nào.</div>
-    @else
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Chủ Đề</th>
-                        <th>Ngày Báo Cáo</th>
-                        <th>Giờ Báo Cáo</th>
-                        <th>Hạn Ngày Nộp</th>
-                        <th>Hạn Giờ Nộp</th>
-                        <th>Bộ Môn</th>
-                        <th>Giảng Viên Phụ Trách</th>
-                        <th>Hành Động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($lichBaoCaos as $index => $lich)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $lich->chuDe }}</td>
-                            <td>{{ $lich->ngayBaoCao }}</td>
-                            <td>{{ $lich->gioBaoCao }}</td>
-                            <td>{{ $lich->hanNgayNop }}</td>
-                            <td>{{ $lich->hanGioNop }}</td>
-                            <td>{{ $lich->boMon->tenBoMon ?? 'N/A' }}</td>
-                            <td>
-                                @if ($lich->giangVienPhuTrach)
-                                    <ul>
-                                        @foreach ($lich->giangVienPhuTrach as $gv)
-                                            <li>{{ $gv->ho }} {{ $gv->ten }}</li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    Chưa phân công
-                                @endif
-                            </td>
-                            <td class="text-center">
-                                <a href="{{ route('lichbaocao.edit', $lich->maLich) }}" class="btn btn-sm btn-warning">Sửa</a>
-                                <form action="{{ route('lichbaocao.destroy', $lich->maLich) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
-</div>
-@endsection --}}
-
+<style>
+    .modal-header .close {
+        font-size: 1rem;
+        color: black !important;
+        opacity: 1;
+    }
+</style>
 @section('content')
 <div class="card shadow mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
@@ -72,11 +15,17 @@
             $guard = session('current_guard');
             $user = Auth::guard($guard)->user();
         @endphp
-        @if($user->chucVu != 1)
+        
+        {{-- @if($user->chucVu != 1)
         <a href="{{ route('lichbaocao.create') }}" class="btn btn-primary">
             <i class="fas fa-plus"></i> Thêm Lịch 
         </a>
-        @endif
+        @endif --}}
+        @if($guard === 'giang_viens' && in_array($user->chucVuObj->tenChucVu, ['Trưởng Bộ Môn', 'Trưởng Khoa']))
+        <a href="{{ route('lichbaocao.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Thêm Lịch 
+        </a>
+    @endif
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -98,9 +47,34 @@
         </div>
     </div>
 </div>
+<!-- Modal xem báo cáo -->
+<div class="modal fade" id="baoCaoModal" tabindex="-1" role="dialog" aria-labelledby="baoCaoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-info text-white">
+          <h5 class="modal-title" id="baoCaoModalLabel">Danh sách báo cáo</h5>
+          {{-- <button type="button" class="close text-white" data-dismiss="modal" aria-label="Đóng">
+            <span aria-hidden="true">&times;</span>
+          </button> --}}
+        </div>
+        <div class="modal-body">
+          <ul id="baoCaoList" class="list-group">
+              <!-- Nội dung động -->
+          </ul>
+          <nav>
+              <ul id="pagination" class="pagination justify-content-center mt-2"></ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 @endsection
 
 @section('script')
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function() {
@@ -144,5 +118,61 @@
             }
         });
     });
+
+
+    $(document).on('click', '.btn-view-bc', function() {
+    const maLich = $(this).data('id');
+    $('#baoCaoList').html('<li class="list-group-item">Đang tải...</li>');
+
+    $('#baoCaoModal').modal('show');
+
+    $.get('/lichbaocao/' + maLich + '/baocao', function(data) {
+    if (data.length === 0) {
+        $('#baoCaoList').html('<li class="list-group-item text-muted">Không có báo cáo nào.</li>');
+        $('#pagination').html('');
+        return;
+    }
+
+    const itemsPerPage = 5;
+    let currentPage = 1;
+    const totalPages = Math.ceil(data.length / itemsPerPage);
+
+    function renderPage(page) {
+        const start = (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const pageItems = data.slice(start, end).map(bc => 
+            `<li class="list-group-item">
+                ${bc.giangVien} - 
+                <a href="${bc.duongDanFile}" download target="_blank">${bc.tenBaoCao}</a>
+            </li>`
+        );
+        $('#baoCaoList').html(pageItems.join(''));
+    }
+
+    function renderPagination() {
+        let paginationHtml = '';
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHtml += `
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>
+            `;
+        }
+        $('#pagination').html(paginationHtml);
+    }
+
+    $(document).off('click', '#pagination a').on('click', '#pagination a', function(e) {
+        e.preventDefault();
+        currentPage = parseInt($(this).data('page'));
+        renderPage(currentPage);
+        renderPagination();
+    });
+
+    renderPage(currentPage);
+    renderPagination();
+});
+
+});
+
 </script>
 @endsection

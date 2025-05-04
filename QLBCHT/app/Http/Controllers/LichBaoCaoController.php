@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LichBaoCao;
+use App\Models\BaoCao;
 use App\Models\GiangVien;
 use App\Models\BoMon;
 use Illuminate\Http\Request;
@@ -23,13 +24,13 @@ class LichBaoCaoController extends Controller
     // }
 
     public function index(Request $request)
-{
-    if ($request->ajax()) {
-        return $this->getDataTable();
-    }
+    {
+        if ($request->ajax()) {
+            return $this->getDataTable();
+        }
 
-    return view('lichbaocao.index');
-}
+        return view('lichbaocao.index');
+    }
 
 private function getDataTable()
 {
@@ -55,19 +56,42 @@ private function getDataTable()
             })->implode(', ');
         })
         ->addColumn('hanhdong', function($lich) {
+
             $guard = session('current_guard');
             $user = Auth::guard($guard)->user();
-            if ($user->chucVu != 1) {
-            return view('components.action-buttons', [
-                'row' => $lich,
-                'editRoute' => 'lichbaocao.edit',
-                'deleteRoute' => 'lichbaocao.destroy',
-                'id' => $lich->maLich
-            ])->render();
+            $viewBtn = '<button class="btn btn-primary btn-sm btn-view-bc" style="padding:2px" data-id="'.$lich->maLich.'">
+            <i class="fas fa-eye me-1"></i> Báo cáo đã nộp
+            </button>';
+            $actionBtns = ''; 
+            if($guard === 'giang_viens' && in_array($user->chucVuObj->tenChucVu, ['Trưởng Bộ Môn', 'Trưởng Khoa'])) {
+                $actionBtns = view('components.action-buttons', [
+                    'row' => $lich,
+                    'editRoute' => 'lichbaocao.edit',
+                    'deleteRoute' => 'lichbaocao.destroy',
+                    'id' => $lich->maLich
+                ])->render();
+                
             }
+            return '<div class="d-flex gap-1">'.$viewBtn . $actionBtns.'</div>';
         })
         ->rawColumns(['hanhdong'])
         ->make(true);
+}
+
+public function getBaoCaoTheoLich($maLich)
+{
+    $baoCaos = BaoCao::where('lich_bao_cao_id', $maLich)
+        ->with('giangVien')
+        ->get()
+        ->map(function ($bc) {
+            return [
+                'tenBaoCao' => $bc->tenBaoCao,
+                'giangVien' => $bc->giangVien->ho . ' ' . $bc->giangVien->ten,
+                'duongDanFile' => asset($bc->duongDanFile), // nếu lưu trong storage
+            ];
+        });
+
+    return response()->json($baoCaos);
 }
 
     /**
@@ -76,8 +100,11 @@ private function getDataTable()
     public function create()
     {
         $giangViens = GiangVien::all();
+        $guard = session('current_guard');
+        $user = Auth::guard($guard)->user();
+        $maGv = $user->maGiangVien;
         $boMons = BoMon::all();
-        return view('lichbaocao.create', compact('giangViens', 'boMons'));
+        return view('lichbaocao.create', compact('giangViens', 'boMons','maGv'));
     }
 
     /**
@@ -90,7 +117,21 @@ private function getDataTable()
         //     'ngayBaoCao', 'gioBaoCao', 'chuDe', 'hanNgayNop', 'hanGioNop', 'boMon_id'
         // ]));
 
-        $lichBaoCao = LichBaoCao::create($request->validated());
+        // $lichBaoCao = LichBaoCao::create($request->validated());
+
+        $guard = session('current_guard');
+        $user = Auth::guard($guard)->user();
+        $maGv = $user->maGiangVien;
+        $data = $request->validated();
+        $lichBaoCao = LichBaoCao::create([
+            'ngayBaoCao' => $data['ngayBaoCao'],
+            'gioBaoCao' => $data['gioBaoCao'],
+            'chuDe' => $data['chuDe'],
+            'giangVienPhuTrach_id' => $maGv,
+            'hanNgayNop' => $data['hanNgayNop'],
+            'hanGioNop' => $data['hanGioNop'],
+            'boMon_id' => $data['boMon_id'],        
+        ]);
         // Gán nhiều giảng viên vào lịch báo cáo
         $lichBaoCao->giangVienPhuTrach()->sync($request->giangVienPhuTrach);
         

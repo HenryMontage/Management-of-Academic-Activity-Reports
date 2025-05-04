@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\BienBanBaoCao;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -9,24 +10,22 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\DangKyBaoCao;
-class ThongBaoDuyetDangKy extends Mailable
+class ThongBaoXacNhanBienBan extends Mailable
 {
     use Queueable, SerializesModels;
-
+    public $bienban;
     /**
      * Create a new message instance.
      */
-    public $dangKy;
-
-    public function __construct(DangKyBaoCao $dangKy)
+    public function __construct(BienBanBaoCao $bienban)
     {
-        $this->dangKy = $dangKy;
+        $this->bienban = $bienban;
     }
 
     public function build()
     {
-        return $this->subject('Thông báo: Kết quả xác nhận phiếu đăng ký sinh hoạt học thuật!')
-                    ->view('emails.thongbao-duyet');
+        return $this->subject('Thông báo: Kết quả xác nhận biên bản!')
+                    ->view('emails.thongbao-xacnhanbienban');
     }
 
     /**
@@ -35,7 +34,7 @@ class ThongBaoDuyetDangKy extends Mailable
     // public function envelope(): Envelope
     // {
     //     return new Envelope(
-    //         subject: 'Thong Bao Duyet Dang Ky',
+    //         subject: 'Thong Bao Dang Ky Bao Cao',
     //     );
     // }
 

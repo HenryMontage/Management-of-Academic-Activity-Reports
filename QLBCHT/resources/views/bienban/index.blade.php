@@ -17,6 +17,7 @@
                         <th>Mã Biên Bản</th>
                         <th>Ngày Gửi</th>
                         <th>Chủ Đề Sinh Hoạt Học Thuật</th>
+                        <th>Trạng Thái</th>
                         {{-- <th>File</th> --}}
                         <th>Hành Động</th>
                     </tr>
@@ -40,6 +41,7 @@
         { data: 'maBienBan', name: 'maBienBan'},
         { data: 'ngayNop', name: 'ngayNop' },
         { data: 'chuDe', name: 'chuDe'},
+        { data: 'trangThai', name: 'trangThai'},
         { data: 'hanhdong', name: 'hanhdong', orderable: false, searchable: false }
     ],
     language: {

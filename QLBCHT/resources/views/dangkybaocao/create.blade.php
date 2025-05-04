@@ -61,21 +61,42 @@
         <div class="form-body">
             <form action="{{ route('dangkybaocao.store') }}" method="POST">
                 @csrf
-                
+                @php
+                    $lichChuaDangKy = $lichBaoCaos->reject(function ($lich) use ($daDangKyIds) {
+                        return in_array($lich->maLich, $daDangKyIds);
+                    });
+                @endphp
+
+                @if ($lichChuaDangKy->isEmpty())
+                    <div class="alert alert-warning mt-3">
+                        Tất cả các chủ đề đã được đăng ký. Vui lòng chờ chủ đề mới.
+                    </div>
+                @endif
                 <!-- Chọn lịch báo cáo -->
                 <div class="form-section">
                     <div class="section-header">
                         <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Chọn chủ đề báo cáo</h5>
                     </div>
                     <div class="section-body">
-                        <select name="lichBaoCao_id" id="lichBaoCao_id" class="form-select" required>
+                        {{-- <select name="lichBaoCao_id" id="lichBaoCao_id" class="form-select" required>
                             <option value="">-- Chọn chủ đề báo cáo --</option>
                             @foreach($lichBaoCaos as $lich)
                                 <option value="{{ $lich->maLich }}">
                                     {{ $lich->chuDe }} ({{ $lich->ngayBaoCao }})
                                 </option>
                             @endforeach
+                        </select> --}}
+                        <select name="lichBaoCao_id" id="lichBaoCao_id" class="form-select" required>
+                            <option value="">-- Chọn chủ đề báo cáo --</option>
+                            @foreach($lichBaoCaos as $lich)
+                                @if(!in_array($lich->maLich, $daDangKyIds))
+                                    <option value="{{ $lich->maLich }}">
+                                        {{ $lich->chuDe }} ({{ $lich->ngayBaoCao }})
+                                    </option>
+                                @endif
+                            @endforeach
                         </select>
+                        
                     </div>
                 </div>
 

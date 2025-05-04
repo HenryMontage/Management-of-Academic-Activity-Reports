@@ -39,26 +39,21 @@ return [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
-            'session' => 'web_session', // Session riêng biệt cho web
         ],
 
         'giang_viens' => [
             'driver' => 'session',
             'provider' => 'giang_viens',
-            'session' => 'giangvien_session', // Tên session riêng biệt cho giảng viên
         ],
 
         'nhan_vien_p_d_b_c_ls' => [
             'driver' => 'session',
             'provider' => 'nhan_vien_p_d_b_c_ls',
-            'session' => 'nhan_vien_p_d_b_c_ls_session', // Tên session riêng biệt cho nhân viên
-
         ],
 
         'admins' => [
             'driver' => 'session',
             'provider' => 'admins',
-            'session' => 'admin_session', // Tên session riêng biệt cho admin
         ],
     ],
 

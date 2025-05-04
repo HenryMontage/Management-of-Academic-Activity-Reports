@@ -21,6 +21,20 @@ return new class extends Migration
         });
 
         Schema::enableForeignKeyConstraints();
+
+        // Insert dữ liệu mặc định
+        DB::table('quyens')->insert([
+            [
+                'tenQuyen' => 'Quản Trị Viên Gốc',
+                'nhomRoute' => json_encode([
+                    'admin','nhanvien','giangvien','khoa',
+                    'bomon','chucvu','quyen','email','lichbaocao',
+                    'dangkybaocao','baocao','bienban','duyet','xacnhan'
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        ]);
     }
 
     /**

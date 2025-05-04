@@ -9,9 +9,9 @@ class DuyetDangKyController extends Controller
 {
     public function index()
     {
-        $dangKyBaoCaos = DangKyBaoCao::where('trangThai', 'Chờ Duyệt')
+        $dangKyBaoCaos = DangKyBaoCao::where('trangThai', 'Chờ Xác Nhận')
             ->with(['baoCaos.giangVien', 'lichBaoCao.boMon.khoa'])
-            ->get();
+            ->paginate(6);
 
         return view('nhanvien.duyet.index', compact('dangKyBaoCaos'));
     }
@@ -19,18 +19,23 @@ class DuyetDangKyController extends Controller
     public function duyet($maDangKy)
     {
         $dangKy = DangKyBaoCao::findOrFail($maDangKy);
-        $dangKy->trangThai = 'Đã Duyệt';
+        $dangKy->trangThai = 'Đã Xác Nhận';
         $dangKy->save();
 
-         // Gửi email cho tất cả giảng viên liên quan
-        foreach ($dangKy->baoCaos as $bc) {
-            $gv = $bc->giangVien;
-            if ($gv->email) {
-                Mail::to($gv->email)->queue(new ThongBaoDuyetDangKy($dangKy));
-            }
+         // Gửi email 
+         $lich = $dangKy->lichBaoCao;
+         $gv = $lich->giangVien;
+         if ($gv->email) {
+            Mail::to($gv->email)->queue(new ThongBaoDuyetDangKy($dangKy));
         }
+        // foreach ($dangKy->lichBaoCao as $lich) {
+        //     $gv = $lich->giangVien;
+        //     if ($gv->email) {
+        //         Mail::to($gv->email)->queue(new ThongBaoDuyetDangKy($dangKy));
+        //     }
+        // }
 
-        return redirect()->back()->with('success', 'Đã duyệt đăng ký báo cáo.');
+        return redirect()->back()->with('success', 'Đã xác nhận phiếu đăng ký sinh hoạt học thuật!');
     }
 
     public function tuChoi($maDangKy)
@@ -47,14 +52,14 @@ class DuyetDangKyController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Đã từ chối đăng ký báo cáo.');
+        return redirect()->back()->with('success', 'Đã từ chối phiếu đăng ký sinh hoạt học thuật!');
     }
 
     public function daDuyet()
     {
-        $dangKyBaoCaos = DangKyBaoCao::where('trangThai', 'Đã Duyệt')
+        $dangKyBaoCaos = DangKyBaoCao::where('trangThai', 'Đã Xác Nhận')
             ->with(['baoCaos.giangVien', 'lichBaoCao.boMon.khoa'])
-            ->get();
+            ->paginate(6);
 
         return view('nhanvien.duyet.daduyet', compact('dangKyBaoCaos'));
     }

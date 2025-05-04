@@ -16,11 +16,11 @@
         </div>
 
         <div style="padding: 30px;">
-            <p>Kính gửi: Phòng Đảm bảo chất lượng và Khảo thí</p>
+            <p>Kính gửi: Phòng đảm bảo chất lượng và khảo thí</p>
             <p>Có phiếu đăng ký sinh học thuật mới! Vui lòng kiểm tra và duyệt trong hệ thống.</p>
 
             <div style="background-color: #f8f9fa; border-left: 5px solid #3498db; padding: 15px; margin: 20px 0;">
-                <p><strong>👤 Giảng viên:</strong> {{ $dangKy->baoCaos->first()->giangVien->ho }} {{ $dangKy->baoCaos->first()->giangVien->ten }}</p>
+                <p><strong>👨‍💼 Từ giảng viên:</strong> {{ $dangKy->baoCaos->first()->giangVien->ho }} {{ $dangKy->baoCaos->first()->giangVien->ten }}</p>
                 <p><strong>📅 Ngày đăng ký:</strong> {{ \Carbon\Carbon::parse($dangKy->ngayDangKy)->format('d/m/Y') }}</p>
                 <p><strong>🏫 Khoa:</strong> {{ $dangKy->lichBaoCao->boMon->khoa->tenKhoa ?? 'Chưa xác định' }}</p>
                 <p><strong>📚 Bộ môn:</strong> {{ $dangKy->lichBaoCao->boMon->tenBoMon ?? 'Chưa xác định' }}</p>

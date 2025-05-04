@@ -14,7 +14,7 @@ class BienBanBaoCao extends Model
     protected $keyType = 'string';
 
     public $timestamps = true;  
-    protected $fillable = ['maBienBan','ngayNop', 'fileBienBan', 'lichBaoCao_id', 'trangThai', 'nhanVien_id'];
+    protected $fillable = ['maBienBan','ngayNop', 'fileBienBan', 'lichBaoCao_id', 'trangThai', 'nhanVien_id','giangVien_id'];
     public function lichBaoCao()
     {
         return $this->belongsTo(LichBaoCao::class, 'lichBaoCao_id', 'maLich');
@@ -23,6 +23,11 @@ class BienBanBaoCao extends Model
     public function nhanVien()
     {
         return $this->belongsTo(NhanVienPDBCL::class, 'nhanVien_id', 'maNV');
+    }
+
+    public function giangVien()
+    {
+        return $this->belongsTo(GiangVien::class, 'giangVien_id', 'maGiangVien');
     }
 
 }

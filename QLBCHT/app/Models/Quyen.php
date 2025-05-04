@@ -10,8 +10,12 @@ class Quyen extends Model
     use HasFactory;
     protected $table = 'quyens';
     protected $primaryKey = 'maQuyen';
-    protected $fillable = ['tenQuyen', 'nhomRoute'];
+    protected $fillable = ['maQuyen','tenQuyen', 'nhomRoute'];
 
+    protected $casts = [
+        'nhomRoute' => 'array',
+    ];
+    
     public function admins()
     {
         return $this->hasMany(Admin::class, 'quyen_id', 'maQuyen');

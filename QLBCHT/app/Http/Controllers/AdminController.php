@@ -12,37 +12,64 @@ use App\Models\NhanVienPDBCL;
 use App\Models\LichBaoCao;
 use App\Models\DangKyBaoCao;
 use App\Models\BaoCao;
+use App\Models\BienBanBaoCao;
 use Carbon\Carbon;
 
 class AdminController extends Controller
 {
-    public function dashboard()
-    {
-        $now = Carbon::now();
-        $startOfMonth = $now->copy()->startOfMonth();
-        $endOfMonth = $now->copy()->endOfMonth();
-        $startOfSemester = $now->month <= 6
-            ? Carbon::create($now->year, 1, 1)
-            : Carbon::create($now->year, 7, 1);
+    public function dashboard(Request $request)
+{
+    $now = Carbon::now();
 
-        return view('admin.dashboard', [
-            'tongGiangVien' => GiangVien::count(),
-            'tongNhanVien' => NhanVienPDBCL::count(),
-            'tongAdmin' => Admin::count(),
-            'tongBaoCao' => BaoCao::count(),
-            'baoCaoDuocDuyet' => DangKyBaoCao::where('trangThai', 'Đã Duyệt')->count(),
-            'tongPhieuDangKy' => DangKyBaoCao::count(),
-            'baoCaoTrongThang' => BaoCao::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count(),
-            'baoCaoTrongKy' => LichBaoCao::whereBetween('created_at', [$startOfSemester, $now])->count(),
+    // Ngày lọc từ form
+    $fromDate = $request->input('from_date') ? Carbon::parse($request->input('from_date'))->startOfDay() : null;
+    $toDate = $request->input('to_date') ? Carbon::parse($request->input('to_date'))->endOfDay() : null;
 
-            // Biểu đồ theo ngày
-            'baoCaoNgay' => BaoCao::selectRaw('DATE(created_at) as ngay, COUNT(*) as soLuong')
-                ->groupBy('ngay')
-                ->orderBy('ngay')
-                ->pluck('soLuong', 'ngay')
-        ]);
+    // Mặc định: tháng và kỳ
+    $startOfMonth = $now->copy()->startOfMonth();
+    $endOfMonth = $now->copy()->endOfMonth();
+    $startOfSemester = $now->month <= 6
+        ? Carbon::create($now->year, 1, 1)
+        : Carbon::create($now->year, 7, 1);
+
+    // Áp dụng điều kiện ngày lọc nếu có
+    $baoCaoQuery = BaoCao::query();
+    $bienBanQuery = BienBanBaoCao::query();
+    $lichBaoCaoQuery = LichBaoCao::query();
+    $phieuDangKyQuery = DangKyBaoCao::query();
+    if ($fromDate && $toDate) {
+        $baoCaoQuery->whereBetween('created_at', [$fromDate, $toDate]);
+        $bienBanQuery->whereBetween('created_at', [$fromDate, $toDate]);
+        $phieuDangKyQuery->whereBetween('created_at', [$fromDate, $toDate]);
+        $lichBaoCaoQuery->whereBetween('created_at', [$fromDate, $toDate]);
     }
 
+    return view('admin.dashboard', [
+        'tongGiangVien' => GiangVien::count(),
+        'tongNhanVien' => NhanVienPDBCL::count(),
+        'tongAdmin' => Admin::count(),
+
+        'tongBaoCao' => $baoCaoQuery->count(),
+        'tongBienBan' => $bienBanQuery->count(),
+        'tongLichBaoCao' => $lichBaoCaoQuery->count(),
+        'tongPhieuDangKy' => $phieuDangKyQuery->count(),
+        'bienBanDuocXacNhan' => $bienBanQuery->where('trangThai', 'Đã Xác Nhận')->count(),
+        'phieuDuocXacNhan' => $phieuDangKyQuery->where('trangThai', 'Đã Xác Nhận')->count(),
+
+
+        // 'tongPhieuDangKy' => DangKyBaoCao::count(),
+        // 'baoCaoDuocDuyet' => DangKyBaoCao::where('trangThai', 'Đã Xác Nhận')->count(),
+
+        // 'baoCaoTrongThang' => BaoCao::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count(),
+        // 'lichBaoCaoTrongKy' => LichBaoCao::whereBetween('created_at', [$startOfSemester, $now])->count(),
+
+        'baoCaoNgay' => BaoCao::selectRaw('DATE(created_at) as ngay, COUNT(*) as soLuong')
+            ->when($fromDate && $toDate, fn($q) => $q->whereBetween('created_at', [$fromDate, $toDate]))
+            ->groupBy('ngay')
+            ->orderBy('ngay')
+            ->pluck('soLuong', 'ngay')
+    ]);
+}
     /**
      * Display a listing of the resource.
      */

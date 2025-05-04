@@ -34,15 +34,15 @@ public function index(Request $request)
 
 private function getDataTable()
 {
-    $data = GiangVien::with(['chucvu', 'bomon']);
+    $data = GiangVien::with(['chucVuObj', 'bomon']);
 
     return DataTables::of($data)
         ->addIndexColumn()
         ->addColumn('ho_ten', function ($row) {
             return $row->ho . ' ' . $row->ten; // Ghép họ và tên
         })
-        ->addColumn('chucvu', function ($row) {
-            return $row->chucvu ? $row->chucvu->tenChucVu : 'Không';
+        ->addColumn('chucVuObj', function ($row) {
+            return $row->chucVuObj ? $row->chucVuObj->tenChucVu : 'Không';
         })
         ->addColumn('bomon', function ($row) {
             return $row->bomon ? $row->bomon->tenBoMon : 'Không';

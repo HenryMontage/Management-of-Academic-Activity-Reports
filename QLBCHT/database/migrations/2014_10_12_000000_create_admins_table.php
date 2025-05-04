@@ -36,6 +36,7 @@ return new class extends Migration
                 'sdt' => '023215458',
                 'email' => 'hoanganh123@gmail.com',
                 'matKhau' => bcrypt('12345678'),
+                'quyen_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

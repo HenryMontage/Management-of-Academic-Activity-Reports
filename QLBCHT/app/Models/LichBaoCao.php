@@ -22,6 +22,11 @@ class LichBaoCao extends Model
         return $this->belongsTo(BoMon::class, 'boMon_id', 'maBoMon');
     }
 
+    public function giangVien()
+    {
+        return $this->belongsTo(GiangVien::class, 'giangVienPhuTrach_id', 'maGiangVien');
+    }
+
     public function baoCaos() {
         return $this->hasMany(BaoCao::class, 'lich_bao_cao_id');
     }
