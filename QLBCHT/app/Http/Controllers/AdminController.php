@@ -12,12 +12,13 @@ use App\Models\NhanVienPDBCL;
 use App\Models\LichBaoCao;
 use App\Models\DangKyBaoCao;
 use App\Models\BaoCao;
+use App\Models\BoMon;
 use App\Models\BienBanBaoCao;
 use Carbon\Carbon;
 
 class AdminController extends Controller
 {
-    public function dashboard(Request $request)
+public function dashboard(Request $request)
 {
     $now = Carbon::now();
 
@@ -44,10 +45,71 @@ class AdminController extends Controller
         $lichBaoCaoQuery->whereBetween('created_at', [$fromDate, $toDate]);
     }
 
+    $notifications = collect();
+
+    // Phiếu đăng ký được duyệt gần nhất
+    $phieuDangKy = DangKyBaoCao::where('trangThai', 'Đã Xác Nhận')->latest()->first();
+    if ($phieuDangKy) {
+        $notifications->push([
+            'icon' => 'fas fa-check',
+            'bg' => 'success',
+            'text' => 'Phiếu đăng ký SHHT được xác nhận',
+            'time' => $phieuDangKy->created_at->diffForHumans(),
+        ]);
+    }
+    
+    // Giảng viên mới đăng ký gần nhất
+    $giangVien = GiangVien::latest()->first();
+    if ($giangVien) {
+        $notifications->push([
+            'icon' => 'fas fa-user',
+            'bg' => 'info',
+            'text' => 'Giảng viên mới được thêm',
+            'time' => $giangVien->created_at->diffForHumans(),
+        ]);
+    }
+
+    $bienBan = BienBanBaoCao::where('trangThai', 'Đã Xác Nhận')->latest()->first();
+    if ($bienBan) {
+        $notifications->push([
+            'icon' => 'fas fa-check',
+            'bg' => 'info',
+            'text' => 'Biên bản mới được xác nhận',
+            'time' => $bienBan->created_at->diffForHumans(),
+        ]);
+    }
+    
+    // Lịch báo cáo mới được tạo gần nhất
+    $lich = LichBaoCao::latest()->first();
+    if ($lich) {
+        $notifications->push([
+            'icon' => 'fas fa-calendar',
+            'bg' => 'warning',
+            'text' => 'Lịch báo cáo mới được tạo',
+            'time' => $lich->created_at->diffForHumans(),
+        ]);
+    }
+    
+    // Sắp xếp lại theo thời gian (mới nhất trên cùng)
+    $notifications = $notifications->sortByDesc('time')->values();
+
+
     return view('admin.dashboard', [
         'tongGiangVien' => GiangVien::count(),
         'tongNhanVien' => NhanVienPDBCL::count(),
         'tongAdmin' => Admin::count(),
+        'baoCaoTheoThang' => BaoCao::selectRaw('MONTH(created_at) as thang, COUNT(*) as soLuong')
+        ->groupBy('thang')
+        ->orderBy('thang')
+        ->pluck('soLuong', 'thang'),
+        'baoCaoTheoBoMon' => BoMon::withCount(['giangViens as soLuongBaoCao' => function ($query) use ($fromDate, $toDate) {
+            $query->join('bao_caos', 'giang_viens.maGiangVien', '=', 'bao_caos.giangVien_id');
+            if ($fromDate && $toDate) {
+                $query->whereBetween('bao_caos.created_at', [$fromDate, $toDate]);
+            }
+        }])->get()->pluck('soLuongBaoCao', 'tenBoMon'),
+        'notifications' => $notifications,
+
 
         'tongBaoCao' => $baoCaoQuery->count(),
         'tongBienBan' => $bienBanQuery->count(),
@@ -55,13 +117,6 @@ class AdminController extends Controller
         'tongPhieuDangKy' => $phieuDangKyQuery->count(),
         'bienBanDuocXacNhan' => $bienBanQuery->where('trangThai', 'Đã Xác Nhận')->count(),
         'phieuDuocXacNhan' => $phieuDangKyQuery->where('trangThai', 'Đã Xác Nhận')->count(),
-
-
-        // 'tongPhieuDangKy' => DangKyBaoCao::count(),
-        // 'baoCaoDuocDuyet' => DangKyBaoCao::where('trangThai', 'Đã Xác Nhận')->count(),
-
-        // 'baoCaoTrongThang' => BaoCao::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count(),
-        // 'lichBaoCaoTrongKy' => LichBaoCao::whereBetween('created_at', [$startOfSemester, $now])->count(),
 
         'baoCaoNgay' => BaoCao::selectRaw('DATE(created_at) as ngay, COUNT(*) as soLuong')
             ->when($fromDate && $toDate, fn($q) => $q->whereBetween('created_at', [$fromDate, $toDate]))
@@ -93,6 +148,9 @@ class AdminController extends Controller
             ->addIndexColumn()
             ->addColumn('quyen', function ($row) {
                 return $row->quyen ? $row->quyen->tenQuyen : 'Không có quyền';
+            })
+            ->addColumn('ho_ten', function ($row) {
+                return $row->ho . ' ' . $row->ten; // Ghép họ và tên
             })
             ->addColumn('hanhdong', function ($row) {
                 return view('components.action-buttons', [
@@ -155,6 +213,8 @@ class AdminController extends Controller
         $data = $request->validated();
         if ($request->filled('matKhau')) {
             $data['matKhau'] = bcrypt($request->matKhau);
+        }else {
+            unset($data['matKhau']);
         }
         $admin->update($data);   
         

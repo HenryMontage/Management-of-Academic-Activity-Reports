@@ -4,77 +4,88 @@
 @section('page-title', "Cập Nhật Lịch Báo Cáo")
 
 @section('content')
-<div class="container py-2">
-    <div class="row justify-content-center">
-        <div class="col-md-10 col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="text-center mb-4">Cập Nhật Lịch Báo Cáo</h2>
 
-                    {{-- Hiển thị lỗi nếu có --}}
-                    @if ($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div class="fixed-container">
+    <div class="form-container">
+        <div class="form-header">
+            <h4 class="mb-0"><i class="fas fa-edit me-1"></i>Cập Nhật Lịch Sinh Hoạt Học Thuật</h4>
+        </div>
+        <div class="form-body">
+            <form action="{{ route('lichbaocao.update', $lich->maLich) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="row g-3">
+                    {{-- Chủ Đề --}}
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Chủ đề</h5>
                         </div>
-                    @endif
+                        <div class="section-body">
+                            <input type="text" class="form-control @error('chuDe') is-invalid @enderror" id="chuDe" name="chuDe" value="{{ old('chuDe', $lich->chuDe) }}">
+                            @error('chuDe')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror   
+                        </div>
+                    </div>
+                    
+                    {{-- Ngày Báo Cáo / giờ báo cáo --}}
 
-                    <form action="{{ route('lichbaocao.update', $lich->maLich) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <div class="row g-3">
-                            {{-- Chủ Đề --}}
-                            <div class="col-md-12">
-                                <label for="chuDe" class="form-label">Chủ Đề</label>
-                                <input type="text" class="form-control @error('chuDe') is-invalid @enderror" id="chuDe" name="chuDe" value="{{ old('chuDe', $lich->chuDe) }}">
-                                @error('chuDe')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            
-                            {{-- Ngày Báo Cáo --}}
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Thời gian Báo Cáo</h5>
+                        </div>
+                        <div class="section-body row g-3">
                             <div class="col-md-6">
-                                <label for="ngayBaoCao" class="form-label">Ngày Báo Cáo</label>
+                                <label for="ngayBaoCao" class="form-label">Ngày báo cáo</label>
                                 <input type="date" class="form-control @error('ngayBaoCao') is-invalid @enderror" id="ngayBaoCao" name="ngayBaoCao" value="{{ old('ngayBaoCao', $lich->ngayBaoCao) }}">
                                 @error('ngayBaoCao')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            
-                            {{-- Giờ Báo Cáo --}}
                             <div class="col-md-6">
-                                <label for="gioBaoCao" class="form-label">Giờ Báo Cáo</label>
+                                <label for="gioBaoCao" class="form-label">Giờ báo cáo</label>
                                 <input type="time" class="form-control @error('gioBaoCao') is-invalid @enderror" id="gioBaoCao" name="gioBaoCao" value="{{ old('gioBaoCao', $lich->gioBaoCao) }}">
                                 @error('gioBaoCao')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                        </div>
+                    </div>
+                    
+                    
 
-                             {{-- Hạn ngày nộp --}}
-                             <div class="col-md-6">
-                                <label for="hanNgayNop" class="form-label">Hạn Ngày Nộp</label>
+                     {{-- Hạn ngày nộp --}}  {{-- Hạn giờ nộp --}}
+
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-hourglass-end me-2"></i>Hạn Nộp Báo Cáo</h5>
+                        </div>
+                        <div class="section-body row g-3">
+                            <div class="col-md-6">
+                                <label for="hanNgayNop" class="form-label">Hạn ngày nộp</label>
                                 <input type="date" class="form-control @error('hanNgayNop') is-invalid @enderror" id="hanNgayNop" name="hanNgayNop" value="{{ old('hanNgayNop', $lich->hanNgayNop) }}">
                                 @error('hanNgayNop')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            
-                            {{-- Hạn giờ nộp --}}
                             <div class="col-md-6">
-                                <label for="hanGioNop" class="form-label">Hạn Giờ Nộp</label>
+                                <label for="hanGioNop" class="form-label">Hạn giờ nộp</label>
                                 <input type="time" class="form-control @error('hanGioNop') is-invalid @enderror" id="hanGioNop" name="hanGioNop" value="{{ old('hanGioNop', $lich->hanGioNop) }}">
                                 @error('hanGioNop')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            
-                            {{-- Bộ Môn --}}
+                        </div>
+                    </div>
+                    
+
+                    {{-- Bộ môn--}}
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fa-solid fa-book-open-reader me-1"></i>Bộ Môn</h5>
+                        </div>
+                        <div class="section-body row g-3">
                             <div class="col-md-12">
-                                <label for="boMon_id" class="form-label">Bộ Môn</label>
                                 <select name="boMon_id" id="boMon_id" class="form-control @error('boMon_id') is-invalid @enderror">
                                     @foreach($boMons as $boMon)
                                         <option value="{{ $boMon->maBoMon }}" {{ old('boMon_id', $lich->boMon_id) == $boMon->maBoMon ? 'selected' : '' }}>
@@ -86,10 +97,16 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                        </div>
+                    </div>
 
-                            {{-- Giảng Viên Phụ Trách --}}
+                    {{-- Giảng viên phụ trách --}}
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h5 class="mb-0"><i class="fas fa-users me-2"></i>Giảng Viên Phụ Trách</h5>
+                        </div>
+                        <div class="section-body row g-3">
                             <div class="col-md-12">
-                                <label class="form-label">Giảng Viên Phụ Trách</label>
                                 <div id="giangVienContainer" class="border p-2 row">
                                     @foreach($giangViens as $key => $giangVien)
                                         <div class="col-md-4">
@@ -104,18 +121,23 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        {{-- Nút bấm --}}
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="{{ route('lichbaocao.index') }}" class="btn btn-secondary btn-lg">Quay lại</a>
-                            <button type="submit" class="btn btn-primary btn-lg">Cập Nhật</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+                
+                {{-- Nút bấm --}}
+                <div class="d-flex justify-content-center gap-2 mt-4">
+                    <a href="{{ route('lichbaocao.index') }}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-2"></i>Cập Nhật
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
 @endsection
 
 @section('script')

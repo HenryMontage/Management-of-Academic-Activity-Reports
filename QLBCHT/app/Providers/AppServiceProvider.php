@@ -32,5 +32,6 @@ class AppServiceProvider extends ServiceProvider
                 Config::set('mail.from.name', $setting->from_name);
             }
         }
+        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
     }
 }

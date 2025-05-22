@@ -10,7 +10,9 @@ class ChucVu extends Model
     use HasFactory;
     protected $table = 'chuc_vus';
     protected $primaryKey = 'maChucVu';
-    public $incrementing = true;
+    public $incrementing = false;
+    protected $keyType = 'string';
+    public $timestamps = true;
     protected $fillable = ['maChucVu', 'tenChucVu', 'quyen_id'];
 
     // Một chức vụ có nhiều giảng viên

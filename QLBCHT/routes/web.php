@@ -21,6 +21,7 @@ use App\Http\Controllers\XacNhanBienBanController;
 use App\Http\Controllers\QuyenController;
 use App\Models\BienBanBaoCao;
 use App\Http\Controllers\EmailSettingController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +50,12 @@ Route::get('/reset-password', [QuenMatKhauController::class, 'showResetForm'])->
 
 // Xử lý đặt lại mật khẩu
 Route::post('/reset-password', [QuenMatKhauController::class, 'resetPassword'])->name('password.update');
+
+//Thông báo
+Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+Route::post('/notifications/mark-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.read');
+Route::delete('/notifications/delete', [NotificationController::class, 'delete'])->name('notifications.delete');
+
 
 Route::middleware(['custom.session','auth:admins', 'kiemtraquyen'])->group(function () {
     // Route::get('/admin/dashboard', function () {
@@ -94,6 +101,7 @@ Route::middleware(['custom.session','auth:admins', 'kiemtraquyen'])->group(funct
         Route::put('/{maGiangVien}', [GiangVienController::class, 'update'])->name('giangvien.update');
         Route::delete('/{maGiangVien}', [GiangVienController::class, 'destroy'])->name('giangvien.destroy');
         Route::post('/import', [GiangVienController::class, 'import'])->name('giangvien.import');
+        
 
     });
     
@@ -148,7 +156,7 @@ Route::middleware(['giangvien_or_nhanvien', 'session.timeout'])->group(function 
 
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
-
+    Route::get('/dsgv', [GiangVienController::class, 'dsGiangVien'])->name('giangvien.dsgv');
     Route::prefix('lichbaocao')->group(function () {
         Route::get('/', [LichBaoCaoController::class, 'index'])->name('lichbaocao.index');
         Route::get('/create', [LichBaoCaoController::class, 'create'])->name('lichbaocao.create');
@@ -175,6 +183,13 @@ Route::middleware(['auth:giang_viens','session.timeout','kiemtraquyen'])->group(
     //     Route::get('/giangviens/{boMon_id}', [LichBaoCaoController::class, 'getGiangVien'])->name('lichbaocao.getGiangVien');// api lấy giảng viên từ bộ môn
 
     // });
+    Route::prefix('lichbaocaodangky')->group(function () {
+        Route::get('/dangky', [LichBaoCaoController::class, 'dangKyView'])->name('lichbaocaodangky.dangky');
+        Route::post('/dangky', [LichBaoCaoController::class, 'dangKySubmit'])->name('lichbaocaodangky.dangky.submit');
+        Route::post('/huy-dang-ky', [LichBaoCaoController::class, 'huyDangKy'])->name('lichbaocaodangky.huy');
+    });
+
+    
 
     Route::prefix('quan-ly-bao-cao')->group(function () {
         Route::get('/', [BaoCaoController::class, 'index'])->name('baocao.index'); // Xem danh sách báo cáo

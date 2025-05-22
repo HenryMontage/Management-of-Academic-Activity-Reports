@@ -14,7 +14,7 @@ class Khoa extends Model
     protected $primaryKey = 'maKhoa'; // Đặt maKhoa là khóa chính
     public $incrementing = false; // Vì maKhoa không phải auto-increment
     protected $keyType = 'string'; // Nếu maKhoa là chuỗi 
-
+    public $timestamps = true;
     protected $fillable = ['maKhoa', 'tenKhoa','truongKhoa'];
 
     protected $casts = [

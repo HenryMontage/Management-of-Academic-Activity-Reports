@@ -9,7 +9,7 @@ class EmailSetting extends Model
 {
     use HasFactory;
     protected $table = 'email_settings';
-
+    public $timestamps = true;
     protected $fillable = [
         'mailer',
         'host',

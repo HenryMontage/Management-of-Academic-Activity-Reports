@@ -11,7 +11,8 @@ class DangKyBaoCao extends Model
     protected $table = 'dang_ky_bao_caos';
     protected $primaryKey = 'maDangKyBaoCao';
     public $incrementing = true;
-    protected $fillable = ['maDangKyBaoCao','ngayDangKy', 'trangThai', 'lichBaoCao_id', 'baoCao_id', 'ketQuaGopY'];
+    public $timestamps = true;
+    protected $fillable = ['maDangKyBaoCao','ngayDangKy', 'trangThai', 'lichBaoCao_id','giangVien_id', 'baoCao_id', 'ketQuaGopY'];
     public function baoCaos()
     {
         return $this->belongsToMany(BaoCao::class, 'bao_cao_dang_ky_bao_caos', 'maDangKyBaoCao', 'maBaoCao');
@@ -21,6 +22,12 @@ class DangKyBaoCao extends Model
     {
         return $this->belongsTo(LichBaoCao::class, 'lichBaoCao_id', 'maLich');
     }
+
+    public function giangVien()
+    {
+        return $this->belongsTo(GiangVien::class, 'giangVien_id', 'maGiangVien');
+    }
+
 
 }
 

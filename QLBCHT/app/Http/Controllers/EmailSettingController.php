@@ -7,30 +7,7 @@ use App\Models\EmailSetting;
 use Illuminate\Support\Facades\Mail;
 class EmailSettingController extends Controller
 {
-    // public function index()
-    // {
-    //     $setting = EmailSetting::first();
-    //     return view('admin.email-settings.index', compact('setting'));
-    // }
 
-    // public function edit($id)
-    // {
-    //     $setting = EmailSetting::findOrFail($id);
-    //     return view('admin.email-settings.edit', compact('setting'));
-    // }
-
-    // public function update(Request $request,EmailSetting $email)
-    // {
-    //     $data = $request->validate([
-    //         'username' => 'required|email',
-    //         'password' => 'required',
-    //         'from_address' => 'required|email',
-    //         'from_name' => 'required|string',
-    //     ]);
-    //     $email->update($data); // cập nhật bản ghi đó
-    
-    //     return redirect()->route('email-settings.index')->with('success', 'Cập nhật cấu hình email thành công!');
-    // }
     public function index()
 {
     $setting = EmailSetting::first(); // luôn chỉ lấy 1 bản ghi duy nhất
@@ -74,8 +51,12 @@ public function save(Request $request)
         $setting = EmailSetting::first();
 
         config([
+            'mail.mailers.smtp.host' => $setting->host,
+            'mail.mailers.smtp.port' => $setting->port,
+            'mail.mailers.smtp.encryption' => $setting->encryption,
             'mail.mailers.smtp.username' => $setting->username,
             'mail.mailers.smtp.password' => $setting->password,
+            'mail.mailer' => $setting->mailer,
             'mail.from.address' => $setting->from_address,
             'mail.from.name' => $setting->from_name,
         ]);
@@ -83,7 +64,7 @@ public function save(Request $request)
         try {
             Mail::raw('Thử email thành công!', function ($message) use ($request) {
                 $message->to($request->test_email)
-                        ->subject('Email kiểm tra cấu hình');
+                        ->subject('Thử Email hệ thống thành công!');
             });
 
             return back()->with('success', 'Gửi email kiểm tra thành công!');

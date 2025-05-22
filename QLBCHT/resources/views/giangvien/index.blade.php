@@ -51,24 +51,35 @@
 <div class="card shadow mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="m-0 font-weight-bold text-primary">Danh Sách Giảng Viên</h5>
-        {{-- <form action="{{ route('giangvien.import') }}" method="POST" enctype="multipart/form-data" class="d-inline ms-2">
+        <form action="{{ route('giangvien.import') }}" method="POST" enctype="multipart/form-data" class="d-inline ms-2">
             @csrf
             <input type="file" name="file" accept=".xlsx,.csv" required class="form-control d-inline-block w-auto">
-            <button type="submit" class="btn btn-success btn-lg">Import Excel</button>
-        </form> --}}
+            <button type="submit" class="btn btn-success">Nhập từ Excel</button>
+        </form>
         <a href="{{ route('giangvien.create') }}" class="btn btn-primary">
             <i class="fas fa-plus"></i> Thêm Giảng Viên
         </a>
     </div>
     <div class="card-body">
         <div class="table-responsive">
+            @if(session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('warning') }}</div>
+            @endif
+
             <table class="table table-bordered" id="giangVienTable" width="100%">
                 <thead class="thead-light">
                     <tr>
                         <th>Mã Giảng Viên</th>
                         <th>Họ Tên</th>
-                        <th>Email</th>
                         <th>Số điện thoại</th>
+                        <th>Email</th>
                         <th>Chức vụ</th>
                         <th >Bộ môn</th>
                         <th>Hành động</th>
@@ -98,8 +109,8 @@
                         return row.ho + ' ' + row.ten; //Ghép họ và tên trực tiếp trong datatable
                     }
                 },
-                { data: 'email', name: 'email' },
                 { data: 'sdt', name: 'sdt' },
+                { data: 'email', name: 'email' },
                 { data: 'chucVuObj', name: 'chucVuObj' },
                 { data: 'bomon', name: 'bomon' },
                 { data: 'hanhdong', name: 'hanhdong', orderable: false, searchable: false }

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bien_ban_bao_caos', function (Blueprint $table) {
-            $table->string('giangVien_id')->nullable()->after('nhanVien_id');
+            $table->string('giangVien_id')->nullable()->after('trangThai');
 
             $table->foreign('giangVien_id')
                 ->references('maGiangVien')

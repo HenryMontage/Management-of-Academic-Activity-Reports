@@ -1,52 +1,3 @@
-{{-- @extends('layouts.app')
-
-@section('content')
-<div class="container">
-    @if(session('success'))
-        <div class="alert alert-success" role="alert">
-            {{ session('success') }}
-        </div>
-    @endif
-    <h1>Danh sách Khoa</h1>
-    <a href="{{ route('khoa.create') }}" class="btn btn-success">Thêm Khoa</a>
-    <table class="table table-hover" id="myTable">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Mã Khoa</th>
-                <th>Tên Khoa</th>
-                <th>Trưởng Khoa</th>
-                <th>Hành động</th>                                                  
-            </tr>   
-        </thead> 
-        <tbody>
-            @foreach($khoas as $khoa)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>   
-                    <td>{{ $khoa->maKhoa }}</td> 
-                    <td>{{ $khoa->tenKhoa }}</td> 
-                    <td>
-                        {{ optional($khoa->truong_Khoa)->ho && optional($khoa->truong_Khoa)->ten 
-                            ? optional($khoa->truong_Khoa)->ho . ' ' . optional($khoa->truong_Khoa)->ten 
-                            : 'Không' 
-                        }}
-                    </td>
-                    
-                    <td>
-                        <a href="{{ route('khoa.edit', $khoa->maKhoa) }}" class="btn btn-warning">Sửa</a>
-                        <form id="deleteForm{{ $khoa->maKhoa }}" action="{{ route('khoa.destroy', $khoa->maKhoa) }}" method="POST" style="display:inline;">
-                            @method('DELETE')
-                            @csrf
-                        </form>
-                        <button data-form="deleteForm{{ $khoa->maKhoa }}" class="btn btn-delete btn-danger">Xóa</button>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-</div>
-@endsection --}}
 
 
 @extends('layouts.app')
@@ -91,7 +42,12 @@
                 { data: 'tenKhoa', name: 'tenKhoa' },
                 { data: 'truong_khoa', name: 'truong_khoa' },
                 { data: 'hanhdong', name: 'hanhdong', orderable: false, searchable: false }
-            ]
+            ],
+            language: {
+                searchPlaceholder: "Tìm kiếm...",
+                lengthMenu: "Hiển thị _MENU_ dòng",
+                processing: '<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i>'
+            }
         });
     });
 

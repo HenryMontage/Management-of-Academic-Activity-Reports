@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('sdt', 15)->unique();
             $table->string('email', 100)->unique();
             $table->string('matKhau', 100);
+            $table->string('anhDaiDien')->nullable();
             $table->unsignedInteger('quyen_id')->nullable();
             $table->foreign('quyen_id')->references('maQuyen')->on('quyens')->onDelete('SET NULL');
             $table->timestamps();

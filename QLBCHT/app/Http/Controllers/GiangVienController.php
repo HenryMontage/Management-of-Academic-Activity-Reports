@@ -12,17 +12,14 @@ use App\Http\Requests\UpdateGiangVienRequest;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Illuminate\Support\Facades\Validator;
+
+
 
 class GiangVienController extends Controller
 {
-    /**
-     * Hiển thị danh sách giảng viên.
-     */
-    // public function index()
-    // {
-    //     $giangViens = GiangVien::with(['chucvu', 'bomon'])->get();
-    //     return view('giangvien.index', compact('giangViens'));
-    // }
+
 public function index(Request $request)
 {
     if ($request->ajax()) {
@@ -131,54 +128,16 @@ private function getDataTable()
         // Xử lý mật khẩu (chỉ cập nhật nếu có nhập mới)
         if ($request->filled('matKhau')) {
             $data['matKhau'] = bcrypt($request->matKhau);
+        } else {
+            unset($data['matKhau']);
         }
+        
 
         // Cập nhật thông tin giảng viên
         $giangvien->update($data);  
 
         return redirect()->route('giangvien.index')->with('success', 'Cập nhật giảng viên thành công!');
     }
-
-    
-
-
-
-    // public function update(UpdateGiangVienRequest $request, $maGiangVien)
-    // {
-
-    //     $giangvien = GiangVien::where('maGiangVien', $maGiangVien)->firstOrFail();
-    //     $data = $request->validated();
-
-    //     // Cập nhật ảnh đại diện
-    //     if ($request->hasFile('anhDaiDien')) {
-    //         // Xóa ảnh cũ nếu có
-    //         if ($giangvien->anhDaiDien) {
-    //             Storage::disk('public')->delete($giangvien->anhDaiDien);
-    //         }
-    //         $path = $request->file('anhDaiDien')->store('anhDaiDiens', 'public');
-    //         $data['anhDaiDien'] = $path;
-    //     }
-
-    //     // Cập nhật thông tin
-    //     $giangvien->update($data);
-
-    //     return redirect()->route('giangvien.index')->with('success', 'Cập nhật giảng viên thành công!');
-        
-    //     // $giangvien = GiangVien::where('maGiangVien', $maGiangVien)->firstOrFail();
-
-    //     // // Get all fields that should be updated, including email and sdt
-    //     // $data = $request->only(['ho', 'ten', 'email', 'sdt', 'chucVu', 'boMon_id']);
-
-    //     // // Update password only if provided
-    //     // if ($request->filled('matKhau')) {
-    //     //     $data['matKhau'] = bcrypt($request->matKhau);
-    //     // }
-
-    //     // // Update the lecturer with the validated data
-    //     // $giangvien->update($data);
-
-    //     // return redirect()->route('giangvien.index')->with('success', 'Cập nhật giảng viên thành công!');
-    // }
 
 
 
@@ -197,4 +156,102 @@ private function getDataTable()
         $giangVien->delete();
         return redirect()->route('giangvien.index')->with('success', 'Xóa giảng viên thành công!');
     }
+    
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv',
+        ]);
+    
+        try {
+            $spreadsheet = IOFactory::load($request->file('file')->getPathName());
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray(null, true, true, true); // A, B, C,...
+    
+            // Bỏ dòng tiêu đề
+            unset($rows[1]);
+    
+            $imported = 0;
+            $skippedRows = [];
+    
+            foreach ($rows as $index => $row) {
+                // Bỏ qua dòng nếu thiếu mã giảng viên
+                if (!isset($row['A']) || empty($row['A'])) continue;
+    
+                // Validator
+                $validator = Validator::make($row, [
+                    'A' => 'required|string',   // maGiangVien
+                    'B' => 'required|string',   // ho
+                    'C' => 'required|string',   // ten
+                    'D' => 'required|string',    // sdt
+                    'E' => 'required|string',   // email
+                    'F' => 'required|string',   // matKhau
+                    'G' => 'nullable|string',  // chucVu (int trong DB)
+                    'H' => 'nullable|string',   // boMon_id (varchar trong DB)
+                ]);
+    
+                if ($validator->fails()) {
+                    $errors = implode(', ', $validator->errors()->all());
+                    $skippedRows[] = "Dòng $index: $errors";
+                    continue;
+                }
+                if (GiangVien::where('maGiangVien', $row['A'])->exists()) {
+                    $skippedRows[] = $index + 1;
+                    continue;
+                }
+    
+                // Tạo hoặc cập nhật giảng viên
+                GiangVien::updateOrCreate(
+                    ['maGiangVien' => $row['A']],
+                    [
+                        'ho' => $row['B'],
+                        'ten' => $row['C'],
+                        'sdt' => '0'.strval($row['D']),
+                        'email' => $row['E'],
+                        'matKhau' => bcrypt($row['F']),
+                        'chucVu' => $row['G'] ?? null,
+                        'boMon_id' => $row['H'] ?? null,
+                    ]
+                );
+    
+                $imported++;
+            }
+    
+            // Xử lý kết quả
+            if ($imported === 0) {
+                return back()->with('error', 'Không import được giảng viên nào.')->with('warning', implode("\n", $skippedRows));
+            }   
+    
+            return redirect()->route('giangvien.index')->with('success', "Đã import $imported giảng viên thành công.");
+        } catch (\Exception $e) {
+            return back()->with('error', 'Lỗi khi import: ' . $e->getMessage());
+        }
+    }
+
+
+    // public function dsGiangVien()
+    // {
+    //     $boMons = BoMon::with('giangViens')->get();
+
+    //     return view('giangvien.dsgv', compact('boMons'));
+    // }
+
+    public function dsGiangVien(Request $request)
+{
+    $keyword = $request->keyword;
+
+    $boMons = BoMon::withCount('giangViens')
+        ->with(['giangViens' => function ($query) {
+            $query->with('chucVuObj');
+        }])
+        ->when($keyword, function ($query, $keyword) {
+            $query->where('tenBoMon', 'like', "%$keyword%");
+        })
+        ->paginate(6); // Số lượng bộ môn mỗi trang
+
+    return view('giangvien.dsgv', compact('boMons', 'keyword'));
+}
+
+
+    
 }

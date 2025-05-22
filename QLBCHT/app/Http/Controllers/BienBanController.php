@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BienBanBaoCao;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -14,63 +15,38 @@ use App\Mail\ThongBaoGuiBienBan;
 
 class BienBanController extends Controller
 {
-    // Hiển thị danh sách biên bản
-    // public function index()
-    // {
-    //     $bienbans = BienBanBaoCao::where('nhanVien_id', Auth::user()->maNV)->get();
-    //     return view('bienban.index', compact('bienbans'));
-    // }
-
+    //Hiển thị danh sách biên bản
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            return $this->getDataTable();
+        $giangVien = Auth::guard('giang_viens')->user();
+    
+        $query = BienBanBaoCao::with('lichBaoCao')
+            ->where('giangVien_id', $giangVien->maGiangVien);
+    
+        if ($request->filled('keyword')) {
+            $keyword = $request->input('keyword');
+            $query->where( function ($q) use ($keyword) {
+                $q->whereHas('lichBaoCao', function ($subQ) use ($keyword){
+                    $subQ->where('chuDe', 'like', '%' . $keyword . '%');
+                })
+                ->orWhere('trangThai', 'like', '%' . $keyword . '%')
+                ->orWhere('ngayNop', 'like', '%' . $keyword . '%');
+            });
         }
     
-        return view('bienban.index');
+        $bienbans = $query->orderByDesc('ngayNop')->paginate(6);
+    
+        return view('bienban.index', compact('bienbans'));
     }
-        
-        private function getDataTable()
-        {
-            $gv = Auth::guard('giang_viens')->user();
     
-        $data = BienBanBaoCao::where('giangVien_id', $gv->maGiangVien)->latest();
-    
-        return DataTables::of($data)
-            ->addIndexColumn()
-            ->addColumn('file', function($row) {
-                if ($row->duongDanFile) {
-                    return '<a href="'.asset($row->fileBienBan).'" target="_blank">Tải file</a>';
-                }
-                return 'Không có file';
-            })
-            ->addColumn('chuDe', function($row) {
-                return $row->lichBaoCao ? $row->lichBaoCao->chuDe : 'Không có chủ đề';
-            })            
-            ->addColumn('hanhdong', function($row) {
-                $downloadLink = '';
-                if ($row->fileBienBan) {
-                    $downloadLink = '<a href="'.asset($row->fileBienBan).'" class="btn btn-sm btn-primary" style="color:#fff" target="_blank"><i class="fas fa-download"></i> Tải File</a>';
-                }
-            
-                $deleteButton = view('components.action-buttons', [
-                    'row' => $row,
-                    'editRoute' => null, // Không cần route edit
-                    'deleteRoute' => 'bienban.destroy',
-                    'id' => $row->maBienBan
-                ])->render();
-            
-                return '<div class="d-flex gap-1">'.$downloadLink . $deleteButton.'</div>';
-    
-            })
-            ->rawColumns(['hanhdong'])
-            ->make(true);
-        }
 
+ 
     // Hiển thị form tạo mới
     public function create()
     {
-        $lichBaoCaos = LichBaoCao::all();
+        $lichBaoCaos = LichBaoCao::whereHas('dangKyBaoCaos', function ($query) {
+            $query->where('trangThai', 'Đã Xác Nhận');
+        })->doesntHave('bienBanBaoCaos')->get();
         return view('bienban.create',compact('lichBaoCaos'));
     }
 
@@ -92,8 +68,14 @@ class BienBanController extends Controller
             'fileBienBan' =>'storage/bienban/' . $fileName,
             'lichBaoCao_id' => $request->lich_bao_cao_id, 
             'trangThai' => 'Chờ Xác Nhận',
-            'nhanVien_id' => null,
             'giangVien_id' => $giangvien->maGiangVien,
+        ]);
+
+        Notification::create([
+            'loai' => 'bien_ban',
+            'noiDung' => 'Có biên bản sinh hoạt học thuật cần xác nhận!',
+            'link' => route('xacnhan.index'),
+            'doiTuong' => 'nhan_vien'
         ]);
 
         $nhanViens = \App\Models\NhanVienPDBCL::all(); // hoặc lọc theo bộ môn/khoa
@@ -137,6 +119,10 @@ class BienBanController extends Controller
     {
         $bienban = BienBanBaoCao::where('maBienBan', $maBienBan)->firstOrFail(); // thêm firstOrFail()
 
+        
+        if ($bienban->trangThai !== 'Chờ Xác Nhận') {
+            return redirect()->back()->with('error', 'Chỉ có thể xoá biên bản khi trạng thái là "Chờ Xác Nhận"!');
+        }
         // Xóa file nếu có
         if ($bienban->fileBienBan && file_exists(public_path($bienban->fileBienBan))) {
             unlink(public_path($bienban->fileBienBan));
@@ -144,7 +130,7 @@ class BienBanController extends Controller
 
         $bienban->delete();
 
-        return redirect()->route('bienban.index')->with('success', 'Xóa biên bản thành công.');
+        return redirect()->route('bienban.index')->with('success', 'Xóa biên bản thành công!');
     }
 
 }

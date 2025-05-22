@@ -20,8 +20,8 @@ return new class extends Migration
             $table->unsignedInteger('lichBaoCao_id')->nullable();
             $table->foreign('lichBaoCao_id')->references('maLich')->on('lich_bao_caos')->onDelete('SET NULL');
             $table->string('trangThai')->default('Chờ Duyệt');
-            $table->string('nhanVien_id')->nullable();
-            $table->foreign('nhanVien_id')->references('maNV')->on('nhan_vien_p_d_b_c_ls')->onDelete('SET NULL');
+            // $table->string('nhanVien_id')->nullable();
+            // $table->foreign('nhanVien_id')->references('maNV')->on('nhan_vien_p_d_b_c_ls')->onDelete('SET NULL');
             $table->timestamps();
         });
 

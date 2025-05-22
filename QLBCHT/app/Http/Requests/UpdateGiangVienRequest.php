@@ -25,7 +25,7 @@ class UpdateGiangVienRequest extends FormRequest
     $maGiangVien = $this->route('maGiangVien');
     $giangVien = GiangVien::findOrFail($maGiangVien);
 
-    return [
+    $rules = [
         'ho' => 'required|string|max:255',
         'ten' => 'required|string|max:255',
         'email' => [
@@ -48,6 +48,44 @@ class UpdateGiangVienRequest extends FormRequest
         'anhDaiDien' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
 
     ];
+
+    $chucVu = $this->input('chucVu');
+    $boMonId = $this->input('boMon_id');
+      // Nếu chọn chức vụ là TBM
+    if ($chucVu === 'TBM') {
+        $rules['boMon_id'] = [
+            'required',
+            'exists:bo_mons,maBoMon',
+            function ($attribute, $value, $fail) use ($maGiangVien) {
+                $boMon = \App\Models\BoMon::where('maBoMon', $value)->first();
+                if ($boMon && $boMon->truongBoMon !== null && $boMon->truongBoMon !== $maGiangVien) {
+                    $fail('Bộ môn này đã có trưởng bộ môn.');
+                }
+            }
+        ];
+    }
+
+    // Nếu chọn chức vụ là Trưởng Khoa
+    if ($chucVu === 'TK') {
+        $rules['boMon_id'] = [
+            'required',
+            'exists:bo_mons,maBoMon',
+            function ($attribute, $value, $fail) use ($maGiangVien) {
+                $boMon = \App\Models\BoMon::where('maBoMon', $value)->first();
+                if (!$boMon) {
+                    return; // để rule exists xử lý
+                }
+
+                $maKhoa = $boMon->maKhoa;
+                $khoa = \App\Models\Khoa::where('maKhoa', $maKhoa)->first();
+
+                if ($khoa && $khoa->truongKhoa !== null && $khoa->truongKhoa !== $maGiangVien) {
+                    $fail('Khoa "' . $khoa->tenKhoa . '" đã có trưởng khoa.');
+                }
+            }
+        ];
+    }
+    return $rules;
 }
     
     

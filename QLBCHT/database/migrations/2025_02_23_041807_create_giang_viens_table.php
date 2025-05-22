@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('sdt', 15)->unique();
             $table->string('email', 100)->unique();
             $table->string('matKhau', 100);
-            $table->unsignedInteger('chucVu')->nullable();
+            $table->string('chucVu')->nullable();
             $table->foreign('chucVu')->references('maChucVu')->on('chuc_vus')->onDelete('SET NULL');
             $table->string('boMon_id')->nullable();
             $table->foreign('boMon_id')->references('maBoMon')->on('bo_mons')->onDelete('SET NULL');

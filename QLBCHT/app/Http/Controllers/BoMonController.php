@@ -11,14 +11,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class BoMonController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    // public function index()
-    // {
-    //     $bomons = BoMon::with(['khoa', 'truong_BoMon'])->get();
-    //     return view('bomon.index', compact('bomons'));
-    // }
+
 
     public function index(Request $request)
     {

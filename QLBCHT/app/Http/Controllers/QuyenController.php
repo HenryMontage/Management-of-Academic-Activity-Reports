@@ -36,7 +36,7 @@ private function getDataTable()
         ->addColumn('nhomRoute', function ($quyen) {
             $mapping = [
                 'admin' => 'Quản trị viên',
-                'nhanvien' => 'Nhân viên PĐBCL',
+                'nhanvien' => 'PĐBCL',
                 'giangvien' => 'Giảng viên',
                 'khoa' => 'Khoa',
                 'bomon' => 'Bộ môn',
@@ -46,6 +46,7 @@ private function getDataTable()
                 'lichbaocao' => 'Lịch báo cáo',
                 'dangkybaocao' => 'Đăng ký báo cáo',
                 'baocao' => 'Báo cáo',
+                'lichbaocaodangky' => 'Đăng ký SHHT',
                 'bienban' => 'Biên bản',
                 'duyet' => 'Xác nhận phiếu đăng ký',
                 'xacnhan' => 'Xác nhận biên bản',

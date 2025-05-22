@@ -1,57 +1,6 @@
 @extends('layouts.user')
 
 @section('content')
-<style>
-    .fixed-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    .form-container {
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-    .form-header {
-        background: #005BAA;
-        color: white;
-        padding: 15px;
-        border-radius: 4px 4px 0 0;
-    }
-    .form-body {
-        padding: 20px;
-    }
-    .form-section {
-        background: #fff;
-        border: 1px solid #ddd;
-        margin-bottom: 20px;
-    }
-    .section-header {
-        background: #f8f9fa;
-        padding: 10px 15px;
-        border-bottom: 1px solid #ddd;
-    }
-    .section-body {
-        padding: 15px;
-    }
-    .input-group {
-        margin-bottom: 10px;
-    }
-    .list-group-item {
-        border-left: none;
-        border-right: none;
-        border-radius: 0;
-    }
-    .list-group-item:first-child {
-        border-top: none;
-    }
-    .list-group-item:last-child {
-        border-bottom: none;
-    }
-    .btn-fixed {
-        min-width: 120px;
-    }
-</style>
 
 <div class="fixed-container">
     <div class="form-container">
@@ -158,11 +107,11 @@
                 </div>
 
                 <!-- Buttons -->
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <a href="{{ route('dangkybaocao.index') }}" class="btn btn-secondary btn-fixed">
+                <div class="d-flex justify-content-center gap-2 mt-4">
+                    <a href="{{ route('dangkybaocao.index') }}" class="btn btn-secondary btn-lg">
                         <i class="fas fa-arrow-left me-2"></i>Quay lại
                     </a>
-                    <button type="submit" class="btn btn-primary btn-fixed">
+                    <button type="submit" class="btn btn-primary btn-lg">
                         <i class="fas fa-save me-2"></i>Đăng ký
                     </button>
                 </div>

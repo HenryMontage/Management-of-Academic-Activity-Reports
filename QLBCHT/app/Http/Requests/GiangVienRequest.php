@@ -20,7 +20,7 @@ class GiangVienRequest extends FormRequest
     public function rules(): array
     {
         $maGiangVien = $this->route('giangvien'); // Lấy từ route parameter
-        return [
+        $rules = [
             'maGiangVien' => $this->isMethod('post') 
                 ? 'required|string|max:20|unique:giang_viens,maGiangVien' 
                 : 'sometimes|string|max:20',
@@ -33,34 +33,50 @@ class GiangVienRequest extends FormRequest
             'boMon_id' => 'nullable|exists:bo_mons,maBoMon',
             'anhDaiDien' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ];
+    
+        $chucVu = $this->input('chucVu');
 
-            // Kiểm tra nếu chọn chức vụ là Trưởng Khoa
-    if ($this->chucVu == 'TRUONG_KHOA') {
-        $rules['maKhoa'] = [
-            'required',
-            'exists:khoas,maKhoa',
-            function ($attribute, $value, $fail) {
-                if (\App\Models\Khoa::where('truongKhoa', '!=', null)->where('maKhoa', $value)->exists()) {
-                    $fail('Khoa này đã có trưởng khoa.');
+        // Nếu chọn chức vụ là TBM
+        if ($chucVu === 'TBM') {
+            $rules['boMon_id'] = [
+                'required',
+                'exists:bo_mons,maBoMon',
+                function ($attribute, $value, $fail) {
+                    $boMon = \App\Models\BoMon::where('maBoMon', $value)->first();
+                    if ($boMon && $boMon->truongBoMon !== null) {
+                        $fail('Bộ môn này đã có trưởng bộ môn.');
+                    }
                 }
-            }
-        ];
-    }
+            ];
+        }
 
-    // Kiểm tra nếu chọn chức vụ là Trưởng Bộ Môn
-    if ($this->chucVu == 'TRUONG_BO_MON') {
+    // Kiểm tra nếu chọn chức vụ là Trưởng Khoa
+    if ($chucVu === 'TK') {
         $rules['boMon_id'] = [
             'required',
             'exists:bo_mons,maBoMon',
             function ($attribute, $value, $fail) {
-                if (\App\Models\BoMon::where('truongBoMon', '!=', null)->where('maBoMon', $value)->exists()) {
-                    $fail('Bộ môn này đã có trưởng bộ môn.');
+                // Tìm bộ môn theo mã
+                $boMon = \App\Models\BoMon::where('maBoMon', $value)->first();
+    
+                if (!$boMon) {
+                    return; // bộ môn không tồn tại, để rule exists xử lý
+                }
+    
+                // Lấy mã khoa từ bộ môn
+                $maKhoa = $boMon->maKhoa;
+    
+                // Kiểm tra xem khoa này đã có trưởng khoa chưa
+                $khoa = \App\Models\Khoa::where('maKhoa', $maKhoa)->first();
+                if ($khoa && $khoa->truongKhoa !== null) {
+                    $fail('Khoa "' . $khoa->tenKhoa . '" đã có trưởng khoa.');
                 }
             }
         ];
     }
-
-        
+    
+    return $rules;
+     
     }
     
 

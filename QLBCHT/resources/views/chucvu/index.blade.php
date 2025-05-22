@@ -1,45 +1,4 @@
-{{-- @extends('layouts.app')
 
-@section('content')
-<div class="container">
-    @if(session('success'))
-        <div class="alert alert-success" role="alert">
-            {{ session('success') }}
-        </div>
-    @endif
-    <h1>Danh sách Chức Vụ</h1>
-    <a href="{{ route('chucvu.create') }}" class="btn btn-success">Thêm Chức Vụ</a>
-    <table class="table table-hover" id="myTable">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Mã Chức Vụ</th>
-                <th>Tên Chức Vụ</th>
-                <th>Quyền</th>
-                <th>Hành động</th>                                                  
-            </tr>   
-        </thead> 
-        <tbody>
-            @foreach($chucVus as $chucVu)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>   
-                    <td>{{ $chucVu->maChucVu }}</td> 
-                    <td>{{ $chucVu->tenChucVu }}</td> 
-                    <td>{{ $chucVu->quyen ? $chucVu->quyen->tenQuyen : 'Không' }}</td> 
-                    <td>
-                        <a href="{{ route('chucvu.edit', $chucVu->maChucVu) }}" class="btn btn-warning">Sửa</a>
-                        <form id="deleteForm{{ $chucVu->maChucVu }}" action="{{ route('chucvu.destroy', $chucVu->maChucVu) }}" method="POST" style="display:inline;">
-                            @method('DELETE')
-                            @csrf
-                        </form>
-                        <button data-form="deleteForm{{ $chucVu->maChucVu }}" class="btn btn-delete btn-danger">Xóa</button>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-@endsection --}}
 
 @extends('layouts.app')
 @section('page-title', "Chức Vụ")

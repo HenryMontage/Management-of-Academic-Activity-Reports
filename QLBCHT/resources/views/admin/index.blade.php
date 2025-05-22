@@ -1,33 +1,4 @@
-{{-- @extends('layouts.app')
 
-@section('content')
-    <h2>Danh sách Admin</h2>
-    <a href="{{ route('admin.create') }}">Thêm Admin</a>
-    <table border="1">
-        <tr>
-            <th>Họ</th>
-            <th>Tên</th>
-            <th>Email</th>
-            <th>Quyền</th>
-            <th>Hành động</th>
-        </tr>
-        @foreach ($admins as $admin)
-        <tr>
-            <td>{{ $admin->ho }}</td>
-            <td>{{ $admin->ten }}</td>
-            <td>{{ $admin->email }}</td>
-            <td>{{ $admin->quyen ? $admin->quyen->tenQuyen : 'Không' }}</td>
-            <td>
-                <a href="{{ route('admin.edit', $admin->maAdmin) }}">Sửa</a>
-                <form action="{{ route('admin.destroy', $admin->maAdmin) }}" method="POST" style="display:inline;">
-                    @csrf @method('DELETE')
-                    <button type="submit">Xóa</button>
-                </form>
-            </td>
-        </tr>
-    @endforeach
-    </table>
-@endsection --}}
 
 @extends('layouts.app')
 @section('page-title', "Quản Trị Viên")
@@ -37,7 +8,7 @@
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h5 class="m-0 font-weight-bold text-primary">Danh Sách Quản Trị Viên</h5>
             <a href="{{ route('admin.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Thêm Admin
+                <i class="fas fa-plus"></i> Thêm Quản Trị Viên
             </a>
         </div>
         <div class="card-body">
@@ -45,8 +16,7 @@
                 <table class="table table-bordered" id="adminTable" width="100%">
                     <thead class="thead-light">
                         <tr>
-                            <th>Họ</th>
-                            <th>Tên</th>
+                            <th>Họ Tên</th>
                             <th>Số điện thoại</th>
                             <th>Email</th>
                             <th>Quyền</th>
@@ -69,8 +39,13 @@
             serverSide: true,
             ajax: "{{ route('admin.index') }}",
             columns: [
-                {data: 'ho', name: 'ho'},
-                {data: 'ten', name: 'ten'},
+                { 
+                    data: null, 
+                    name: 'ho_ten', 
+                    render: function(data, type, row) {
+                        return row.ho + ' ' + row.ten; //Ghép họ và tên trực tiếp trong datatable
+                    }
+                },
                 {data: 'sdt', name: 'sdt'},
                 {data: 'email', name: 'email'},
                 {data: 'quyen', name: 'quyen'},

@@ -20,12 +20,7 @@ class KhoaController extends Controller
     public function __construct(Khoa $khoa){
         $this->khoa = $khoa;
     }
-    // public function index()
-    // {
-    //     //$khoas = Khoa::all();
-    //     $khoas = Khoa::with('truong_Khoa')->get(); // Load quan hệ trưởng khoa
-    //     return view('khoa.index',compact('khoas'));
-    // }
+
     public function index(Request $request)
     {
         if ($request->ajax()) {

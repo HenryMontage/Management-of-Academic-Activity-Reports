@@ -10,6 +10,7 @@ class LichBaoCao extends Model
     use HasFactory;
     protected $table = 'lich_bao_caos';
     protected $primaryKey = 'maLich';
+    public $timestamps = true;
     protected $fillable = ['ngayBaoCao', 'gioBaoCao', 'chuDe', 'giangVienPhuTrach_id', 'hanNgayNop', 'hanGioNop', 'boMon_id'];
 
     public function giangVienPhuTrach()
@@ -35,6 +36,12 @@ class LichBaoCao extends Model
     {
         return $this->hasMany(BienBanBaoCao::class, 'lichBaoCao_id', 'maLich');
     }
+
+    public function dangKyBaoCaos()
+    {
+        return $this->hasMany(DangKyBaoCao::class, 'lichBaoCao_id', 'maLich');
+    }
+
 
 
 }

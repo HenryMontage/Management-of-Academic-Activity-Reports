@@ -10,6 +10,7 @@ class Quyen extends Model
     use HasFactory;
     protected $table = 'quyens';
     protected $primaryKey = 'maQuyen';
+    public $timestamps = true;
     protected $fillable = ['maQuyen','tenQuyen', 'nhomRoute'];
 
     protected $casts = [

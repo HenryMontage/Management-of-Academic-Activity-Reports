@@ -12,14 +12,7 @@ use Illuminate\Http\Request;
 
 class ChucVuController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    // public function index()
-    // {
-    //     $chucVus = ChucVu::all();
-    //     return view('chucvu.index', compact('chucVus'));
-    // }
+
     public function index(Request $request)
     {
         if ($request->ajax()) {
@@ -66,6 +59,7 @@ class ChucVuController extends Controller
     public function store(ChucVuRequest $request)
     {
         ChucVu::create([
+            'maChucVu' => $request->maChucVu,
             'tenChucVu' => $request->tenChucVu,
             'quyen_id' => $request->quyen_id ?? null, // Cho phép quyen_id có thể null
         ]);

@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('trangThai')->default('Chờ Duyệt');
             $table->unsignedInteger('lichBaoCao_id')->nullable();
             $table->foreign('lichBaoCao_id')->references('maLich')->on('lich_bao_caos')->onDelete('SET NULL');
-            $table->unsignedInteger('baoCao_id')->nullable(); 
-            $table->foreign('baoCao_id')->references('maBaoCao')->on('bao_caos')->onDelete('SET NULL');
+            // $table->unsignedInteger('baoCao_id')->nullable(); 
+            // $table->foreign('baoCao_id')->references('maBaoCao')->on('bao_caos')->onDelete('SET NULL');
             $table->mediumText('ketQuaGopY')->nullable();
             $table->timestamps();
         });

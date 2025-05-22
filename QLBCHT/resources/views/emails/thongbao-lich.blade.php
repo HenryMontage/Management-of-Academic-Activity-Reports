@@ -1,6 +1,3 @@
-{{-- <h2>Thông báo mới!</h2>
-<p>Giảng viên đã đăng ký báo cáo học thuật.</p>
-<p>Vui lòng truy cập hệ thống để kiểm tra và duyệt.</p> --}}
 
 <!DOCTYPE html>
 <html lang="vi">

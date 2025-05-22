@@ -29,6 +29,7 @@ class UpdateNhanVienRequest extends FormRequest
             'sdt' => 'required|string|unique:nhan_vien_p_d_b_c_ls,sdt,' . $maNV . ',maNV',
             'email' => 'required|email|unique:nhan_vien_p_d_b_c_ls,email,' . $maNV . ',maNV',
             'anhDaiDien' => 'nullable|image|max:2048',
+            'quyen_id' => 'required|exists:quyens,maQuyen', 
         ];
     }
 }

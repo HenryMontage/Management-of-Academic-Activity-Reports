@@ -12,6 +12,7 @@ class BoMon extends Model
     protected $primaryKey = 'maBoMon';
     public $incrementing = false;
     protected $keyType = 'string';
+    public $timestamps = true;
     protected $fillable = ['maBoMon', 'tenBoMon', 'maKhoa','truongBoMon'];
 
 

@@ -20,10 +20,10 @@ class BienBanBaoCao extends Model
         return $this->belongsTo(LichBaoCao::class, 'lichBaoCao_id', 'maLich');
     }
  
-    public function nhanVien()
-    {
-        return $this->belongsTo(NhanVienPDBCL::class, 'nhanVien_id', 'maNV');
-    }
+    // public function nhanVien()
+    // {
+    //     return $this->belongsTo(NhanVienPDBCL::class, 'nhanVien_id', 'maNV');
+    // }
 
     public function giangVien()
     {

@@ -24,13 +24,15 @@
     {{-- html editer --}}
     {{-- <x-head.tinymce-config/> --}}
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #005BAA;  /* Màu xanh đặc trưng của NTU */
+            --primary-color: #005BAA; /* Màu xanh đặc trưng của NTU */
             --secondary-color: #0056b3;
             --text-color: #2b2d42;
             --background-color: #f8f9fa;
-            --sidebar-width: 220px;
+            --sidebar-width: 240px;
+            --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
         }
 
         body {
@@ -50,9 +52,48 @@
             transition: transform 0.3s ease-in-out;
             z-index: 1040;
             overflow-y: auto;
+            box-shadow: var(--box-shadow);
         }
 
-       
+        /* Style content */
+        .fixed-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .form-container {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .form-header {
+        background: #198754;
+        color: white;
+        padding: 15px;
+        border-radius: 4px 4px 0 0;
+    }
+    .form-body {
+        padding: 20px;
+    }
+    .form-section {
+        background: #fff;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+    }
+    .section-header {
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border-bottom: 1px solid #ddd;
+    }
+    .section-body {
+        padding: 15px;
+    }
+    .input-group {
+        margin-bottom: 10px;
+    }
+    .btn-fixed {
+        min-width: 120px;
+    }
 
         /* Mobile Styles */
         @media (max-width: 992px) {
@@ -95,9 +136,9 @@
         }
 
         .sidebar-brand {
-            padding: 0.8rem;
+            padding: 1rem;
             text-align: center;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.1);
             color: #ffffff;
             font-size: 1.5rem;
             font-weight: bold;
@@ -106,16 +147,15 @@
         }
 
         .sidebar-brand:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            background-color: rgba(0, 0, 0, 0.2);
         }
 
         .sidebar-menu .nav-link {
             color: rgba(255, 255, 255, 0.8);
             padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
+            margin: 0.25rem 0;
             border-radius: 8px;
-            margin: 0.2rem 0;
+            transition: all 0.3s ease;
         }
 
         .sidebar-menu .nav-link:hover,
@@ -132,66 +172,51 @@
             position: sticky;
             top: 0;
             z-index: 1020;
+            border-radius: 0 0 15px 15px;
         }
 
-        .btn-outline-secondary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-outline-secondary:hover {
-            background-color: var(--primary-color);
-            color: #ffffff;
-        }
-
-        /* User Dropdown */
-        .user-actions .dropdown-toggle {
-            display: flex;
-            align-items: center;
-            color: var(--primary-color);
-        }
-
-        .dropdown-menu {
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .dropdown-item:hover {
-            background-color: var(--background-color);
-            color: var(--primary-color);
-        }
-
-        /* Content area styling */
         .content-wrapper {
             padding: 25px;
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-            margin: 20px;
-        }
-
-        /* Improved Responsive Handling */
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* Prevent input zoom on mobile */
-        @media (max-width: 576px) {
-            input, select, textarea {
-                font-size: 16px;
-            }
         }
 
         /* User Dropdown */
         .user-actions .dropdown-toggle {
             display: flex;
             align-items: center;
+            color: var(--text-color);
+            font-weight: 500;
+            text-decoration: none;
         }
 
-        /* Smooth Transitions */
-        * {
-            transition: all 0.3s ease;
+        .user-actions .dropdown-menu {
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: none;
+            padding: 0.5rem;
+        }
+
+        .user-actions .dropdown-item {
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .user-actions .dropdown-item:hover {
+            background-color: rgba(0, 91, 170, 0.1);
+        }
+
+        .user-actions .dropdown-item.text-danger:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        /* Page title styling */
+        .page-title {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 91, 170, 0.2);
         }
     </style>
 </head>
@@ -205,29 +230,29 @@
             <nav class="col sidebar" id="sidebar">
                 <div class="sidebar-brand">
                     <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center justify-content-center text-decoration-none px-3">
-                        <img src="{{ asset('anhdaidiens/ntu1.jpg') }}" alt="Logo NTU" style="height: 40px; width: 40px; border-radius: 50%; margin-right: 10px;">
-                        <span class="text-white" style="font-size: 1.7rem; font-weight: 600;">Admin</span>
+                        <img src="{{ asset('anhdaidiens/ntu1.jpg') }}" alt="Logo NTU" style="height: 45px; width: 45px; border-radius: 50%; margin-right: 10px; border: 2px solid white;">
+                        <span class="text-white" style="font-size: 18px; font-weight: 600;">Quản trị viên</span>
                     </a>
                 </div>
-                <div class="sidebar-menu mx-2">
+                <div class="sidebar-menu mx-3 mt-4">
                     <ul class="nav flex-column">
-                        <li class="nav-item mb-2">
-                            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} text-white p-3 rounded" style="font-size: 16px;">
-                                🏠 Trang chủ
+                        <li class="nav-item">
+                            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} text-white rounded" style="font-size: 16px;">
+                                <i class="fa-solid fa-house"></i> Trang chủ
                             </a>
                         </li>
                         @php
                             $quyen = auth()->user()->quyen ?? auth()->user()->chucVu->quyen ?? null;
                             $dsQuyen = $quyen?->nhomRoute ?? [];
                             $menuItems = [
-                                'admin'     => ['👤 Quản trị viên', 'admin.index'],
-                                'giangvien' => ['📚 Giảng viên', 'giangvien.index'],
-                                'nhanvien'  => ['👨‍💼 PĐBCL', 'nhanvien.index'],
-                                'khoa'      => ['🏢 Khoa', 'khoa.index'],
-                                'bomon'     => ['📖 Bộ môn', 'bomon.index'],
-                                'chucvu'    => ['📖 Chức vụ', 'chucvu.index'],
-                                'quyen'     => ['📖 Phân quyền', 'quyen.index'],
-                                'email'     => ['📧 Email','email-settings.index'],
+                                'admin'     => ['<i class="fa-solid fa-user-shield me-1"></i> Quản trị viên', 'admin.index'],
+                                'giangvien' => ['<i class="fa-solid fa-person-chalkboard me-1"></i> Giảng viên', 'giangvien.index'],
+                                'nhanvien'  => ['<i class="fa-solid fa-user-tie me-1"></i> PĐBCL', 'nhanvien.index'],
+                                'khoa'      => ['<i class="fa-solid fa-building-columns me-1"></i> Khoa', 'khoa.index'],
+                                'bomon'     => ['<i class="fa-solid fa-book-open-reader me-1"></i> Bộ môn', 'bomon.index'],
+                                'chucvu'    => ['<i class="fa-solid fa-id-badge me-1"></i> Chức vụ', 'chucvu.index'],
+                                'quyen'     => ['<i class="fa-solid fa-user-lock me-1"></i> Phân quyền', 'quyen.index'],
+                                'email'     => ['<i class="fa-solid fa-envelope me-1"></i> Email', 'email-settings.index'],
                             ];
                         @endphp
 
@@ -235,49 +260,13 @@
                             @if(in_array($key, $dsQuyen))
                                 <li class="nav-item">
                                     <a href="{{ route($route) }}" class="nav-link {{ request()->routeIs($route) ? 'active' : '' }} text-white rounded" style="font-size: 16px;">
-                                        {{ $label }}
+                                        {!! $label !!}
                                     </a>
                                 </li>
                                
                             @endif
                         @endforeach
-                        
-                        {{-- <li class="nav-item mb-2">
-                            <a href="{{ route('admin.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
-                                👤 Quản trị viên
-                            </a>
-                        </li>
-                        <li class="nav-item mb-2">
-                            <a href="{{ route('giangvien.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
-                                📚 Giảng viên
-                            </a>
-                        </li>
-                        <li class="nav-item mb-2">
-                            <a href="{{ route('nhanvien.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
-                                👨‍💼 Nhân viên
-                            </a>
-                        </li>
-                        <li class="nav-item mb-2">
-                            <a href="{{ route('khoa.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
-                                🏢 Khoa
-                            </a>
-                        </li>
-                        <li class="nav-item mb-2">
-                            <a href="{{ route('bomon.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
-                                📖 Bộ môn
-                            </a>
-                        </li>
-                        <li class="nav-item mb-2">
-                            <a href="{{ route('chucvu.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
-                                📖 Chức vụ
-                            </a>
-                        </li>
-                        <li class="nav-item mb-2">
-                            <a href="{{ route('quyen.index') }}" class="nav-link text-white p-3 rounded" style="font-size: 16px;">
-                                📖 Phân quyền
-                            </a>
-                        </li> --}}
-
+                    </ul>
                     </ul>
                 </div>
             </nav>
@@ -287,11 +276,11 @@
                 <!-- Top Bar -->
                 <div class="topbar d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
-                        <button class="btn btn-outline-secondary me-3 d-md-none toggle-sidebar" type="button">
+                        <button class="btn btn-light me-3 d-md-none toggle-sidebar" type="button">
                             <i class="fas fa-bars"></i>
                         </button>
                         
-                        <h1 class="h5 m-0 p-2" style="background-color: #4A90E2; color: white; border-radius: 0.25rem;">@yield('page-title', 'Dashboard')</h1>
+                        <h1 class="h5 m-0 page-title">@yield('page-title', 'Dashboard')</h1>
                     </div>
                     
                     <div class="user-actions">
@@ -301,13 +290,23 @@
                         @endphp
                         @if ($user)
                             <div class="dropdown">
-                                <a href="#" class="dropdown-toggle text-decoration-none" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user me-2"></i>
-                                    Xin chào {{ $user->ho }} {{ $user->ten }}
+                                <a href="#" class="dropdown-toggle d-flex align-items-center" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-2" style="width: 40px; height: 40px; background-color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <span>{{ $user->ho }} {{ $user->ten }}</span>
+                                            <small class="d-block text-muted">{{ ucfirst($guard) }}</small>
+                                        </div>
+                                    </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li><a class="dropdown-item" href="#">
                                         <i class="fas fa-user me-2"></i> Cá nhân
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#">
+                                        <i class="fas fa-cog me-2"></i> Cài đặt
                                     </a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
@@ -348,8 +347,27 @@
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.overlay');
             const toggleButtons = document.querySelectorAll('.toggle-sidebar');
+            
+            // Highlight active menu item
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.sidebar-menu .nav-link');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && currentPath.includes(href.split('?')[0])) {
+                    link.classList.add('active');
+                }
+                
+                // Sidebar Toggle
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 993) {
+                        sidebar.classList.remove('show');
+                        overlay.classList.remove('show');
+                    }
+                });
+            });
 
-            // Sidebar Toggle
+            // Toggle sidebar
             toggleButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     sidebar.classList.toggle('show');
@@ -363,33 +381,27 @@
                 overlay.classList.remove('show');
             });
 
-            // Close sidebar on nav link click (mobile)
-            const navLinks = document.querySelectorAll('.sidebar-menu .nav-link');
-            navLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth < 993) {
-                        sidebar.classList.remove('show');
-                        overlay.classList.remove('show');
-                    }
-                });
-            });
-
             // Prevent zoom on input focus (mobile)
             const inputs = document.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
                 input.addEventListener('focus', function() {
-                    if (window.innerWidth < 576) {
-                        document.querySelector('meta[name=viewport]').setAttribute(
-                            'content', 
-                            'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
-                        );
-                    }
-                });
-                input.addEventListener('blur', function() {
                     document.querySelector('meta[name=viewport]').setAttribute(
                         'content', 
                         'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
                     );
+                });
+            });
+            
+            // Add smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    if (href !== "#") {
+                        e.preventDefault();
+                        document.querySelector(href).scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
                 });
             });
         });
@@ -397,6 +409,12 @@
     @yield('script')
 </body>
 </html>
+
+
+
+
+
+
 
 
 

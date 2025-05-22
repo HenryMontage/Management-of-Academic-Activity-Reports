@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserSession extends Model
 {
+    public $timestamps = true;
     protected $fillable = [
         'user_type',
         'user_ma',

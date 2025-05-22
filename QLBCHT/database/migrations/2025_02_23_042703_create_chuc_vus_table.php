@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('chuc_vus', function (Blueprint $table) {
-            $table->increments('maChucVu');
+            $table->string('maChucVu')->primary();
             $table->string('tenChucVu');
             $table->unsignedInteger('quyen_id')->nullable();
             $table->foreign('quyen_id')->references('maQuyen')->on('quyens')->onDelete('SET NULL');

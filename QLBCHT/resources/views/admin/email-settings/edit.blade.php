@@ -81,8 +81,9 @@
                         </div>
 
                         {{-- Nút lưu --}}
-                        <div class="d-flex justify-content-end mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg">Lưu Cấu Hình</button>
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ route('email-settings.index') }}" class="btn btn-secondary btn-lg">Quay lại</a>
+                            <button type="submit" class="btn btn-success btn-lg">Lưu Cấu Hình</button>
                         </div>
                     </form>
                 </div>

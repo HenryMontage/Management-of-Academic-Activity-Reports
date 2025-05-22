@@ -34,6 +34,11 @@ class ChucVuRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'maChucVu.required' => 'Mã chức vụ không được để trống.',
+            'maChucVu.string' => 'Mã chức vụ phải là chuỗi ký tự.',
+            'maChucVu.max' => 'Mã chức vụ không được vượt quá 20 ký tự.',
+            'maChucVu.unique' => 'Mã chức vụ này đã tồn tại, vui lòng nhập mã khác.',
+
            'tenChucVu.required' => 'Tên chức vụ không được để trống.',
             'tenChucVu.string' => 'Tên chức vụ phải là chuỗi ký tự.',
             'tenChucVu.max' => 'Tên chức vụ không được vượt quá 255 ký tự.',

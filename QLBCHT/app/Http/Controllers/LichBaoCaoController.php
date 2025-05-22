@@ -5,78 +5,55 @@ namespace App\Http\Controllers;
 use App\Models\LichBaoCao;
 use App\Models\BaoCao;
 use App\Models\GiangVien;
+use App\Models\Notification;
 use App\Models\BoMon;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\LichBaoCaoRequest;
 use App\Mail\ThongBaoLichBaoCao;
+use App\Mail\DangKySHHTMail;
+use App\Mail\HuyDangKySHHTMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 class LichBaoCaoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    // public function index()
-    // {
-    //     $lichBaoCaos = LichBaoCao::with('giangVienPhuTrach', 'boMon')->get();
-    //     return view('lichbaocao.index', compact('lichBaoCaos'));
-    // }
-
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            return $this->getDataTable();
-        }
-
-        return view('lichbaocao.index');
-    }
-
-private function getDataTable()
-{
+        $keyword = $request->input('keyword');
     
-    $lichBaoCaos = LichBaoCao::with('giangVienPhuTrach', 'boMon');
+        $query = LichBaoCao::with(['boMon', 'giangVienPhuTrach','baoCaos.giangVien']);
 
-    return DataTables::of($lichBaoCaos)
-        ->addIndexColumn()
-        ->editColumn('gioBaoCao', function ($row) {
-            return \Carbon\Carbon::parse($row->gioBaoCao)->format('h:i') . 
-                   ( \Carbon\Carbon::parse($row->gioBaoCao)->format('A') == 'AM' ? ' SA' : ' CH');
-        })
-        ->editColumn('hanGioNop', function ($row) {
-            return \Carbon\Carbon::parse($row->hanGioNop)->format('h:i') . 
-                   ( \Carbon\Carbon::parse($row->hanGioNop)->format('A') == 'AM' ? ' SA' : ' CH');
-        })
-        ->addColumn('boMon', function($lich) {
-            return $lich->boMon ? $lich->boMon->tenBoMon : 'Không xác định';
-        })
-        ->addColumn('giangVienPhuTrach', function($lich) {
-            return $lich->giangVienPhuTrach->map(function($gv) {
-                return $gv->ho . ' ' . $gv->ten;
-            })->implode(', ');
-        })
-        ->addColumn('hanhdong', function($lich) {
 
-            $guard = session('current_guard');
-            $user = Auth::guard($guard)->user();
-            $viewBtn = '<button class="btn btn-primary btn-sm btn-view-bc" style="padding:2px" data-id="'.$lich->maLich.'">
-            <i class="fas fa-eye me-1"></i> Báo cáo đã nộp
-            </button>';
-            $actionBtns = ''; 
-            if($guard === 'giang_viens' && in_array($user->chucVuObj->tenChucVu, ['Trưởng Bộ Môn', 'Trưởng Khoa'])) {
-                $actionBtns = view('components.action-buttons', [
-                    'row' => $lich,
-                    'editRoute' => 'lichbaocao.edit',
-                    'deleteRoute' => 'lichbaocao.destroy',
-                    'id' => $lich->maLich
-                ])->render();
-                
-            }
-            return '<div class="d-flex gap-1">'.$viewBtn . $actionBtns.'</div>';
-        })
-        ->rawColumns(['hanhdong'])
-        ->make(true);
-}
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('chuDe', 'like', '%' . $keyword . '%')
+                  ->orWhere('ngayBaoCao', 'like', '%' . $keyword . '%')
+                  ->orWhere('gioBaoCao', 'like', '%' . $keyword . '%')
+                  ->orWhere('hanNgayNop', 'like', '%' . $keyword . '%')
+                  ->orWhere('hanGioNop', 'like', '%' . $keyword . '%')
+                  ->orWhereHas('boMon', function ($subQ) use ($keyword) {
+                      $subQ->where('tenBoMon', 'like', '%' . $keyword . '%');
+                  });
+                //   ->orWhereHas('giangVienPhuTrach', function ($subQ) use ($keyword) {
+                //       $subQ->where('ho', 'like', '%' . $keyword . '%')
+                //            ->orWhere('ten', 'like', '%' . $keyword . '%');
+                //   });
+            });
+             // Tìm giảng viên phụ trách (separate condition)
+             $query->orWhereHas('giangVienPhuTrach', function ($subQ) use ($keyword) {
+                $subQ->whereRaw("CONCAT(ho, ' ', ten) LIKE ?", ['%' . $keyword . '%']);
+            });
+            
+            
+        }
+    
+        $dsLichBaoCao = $query->orderByDesc('ngayBaoCao')->paginate(6);
+    
+        return view('lichbaocao.index', compact('dsLichBaoCao', 'keyword'));
+    }
+    
 
 public function getBaoCaoTheoLich($maLich)
 {
@@ -112,12 +89,6 @@ public function getBaoCaoTheoLich($maLich)
      */
     public function store(LichBaoCaoRequest $request)
     {
-              
-        // $lichBaoCao = LichBaoCao::create($request->only([
-        //     'ngayBaoCao', 'gioBaoCao', 'chuDe', 'hanNgayNop', 'hanGioNop', 'boMon_id'
-        // ]));
-
-        // $lichBaoCao = LichBaoCao::create($request->validated());
 
         $guard = session('current_guard');
         $user = Auth::guard($guard)->user();
@@ -135,9 +106,23 @@ public function getBaoCaoTheoLich($maLich)
         // Gán nhiều giảng viên vào lịch báo cáo
         $lichBaoCao->giangVienPhuTrach()->sync($request->giangVienPhuTrach);
         
-        foreach ($lichBaoCao->giangVienPhuTrach as $gv) {
-            Mail::to($gv->email)->queue(new ThongBaoLichBaoCao($lichBaoCao));
-        }
+        Notification::create([
+            'loai' => 'lich',
+            'noiDung' => 'Có lịch sinh hoạt học thuật mới!',
+            'link' => route('lichbaocao.index'),
+            'doiTuong' => 'giang_vien'
+        ]);
+        Notification::create([
+            'loai' => 'lich',
+            'noiDung' => 'Có lịch sinh hoạt học thuật mới!',
+            'link' => route('lichbaocao.index'),
+            'doiTuong' => 'nhan_vien'
+        ]);
+
+
+        // foreach ($lichBaoCao->giangVienPhuTrach as $gv) {
+        //     Mail::to($gv->email)->queue(new ThongBaoLichBaoCao($lichBaoCao));
+        // }
         
         return redirect()->route('lichbaocao.index')->with('success', 'Lịch báo cáo được tạo thành công.');
     }
@@ -169,25 +154,7 @@ public function getBaoCaoTheoLich($maLich)
      */
     public function update(LichBaoCaoRequest $request, $maLich)
     {
-        // $validated = $request->validate([
-        //     'chuDe' => 'required|string|max:255',
-        //     'ngayBaoCao' => 'required|date',
-        //     'gioBaoCao' => 'required',
-        //     'boMon_id' => 'required|exists:bo_mons,maBoMon',
-        //     'giangVien_id' => 'array', 
-        //     'giangVien_id.*' => 'exists:giang_viens,maGiangVien',
-        // ]);
-    
-        // $lich = LichBaoCao::where('maLich', $maLich)->firstOrFail();
-    
-        // $lich->update([
-        //     'chuDe' => $validated['chuDe'],
-        //     'ngayBaoCao' => $validated['ngayBaoCao'],
-        //     'gioBaoCao' => $validated['gioBaoCao'],
-        //     'boMon_id' => $validated['boMon_id'],
-        // ]);
-        // Cập nhật giảng viên phụ trách
-        // $lich->giangVienPhuTrach()->sync($validated['giangVien_id'] ?? []);
+      
     
         $lich = LichBaoCao::where('maLich', $maLich)->firstOrFail();
 
@@ -215,10 +182,112 @@ public function getBaoCaoTheoLich($maLich)
      */
     public function destroy($maLich)
     {
-        LichBaoCao::findOrFail($maLich)->delete();
-        return redirect()->route('lichbaocao.index')->with('success', 'Lịch báo cáo đã bị xóa.');
+        $lich = LichBaoCao::withCount('dangKyBaoCaos')->findOrFail($maLich);
+    
+        // Nếu có ít nhất 1 đăng ký báo cáo thì không cho xóa
+        if ($lich->dang_ky_bao_caos_count > 0) {
+            return redirect()->route('lichbaocao.index')
+                ->with('error', 'Không thể xóa lịch vì đã đăng ký tổ chức sinh hoạt học thuật cho lịch này rồi!');
+        }
+    
+        $lich->delete();
+    
+        return redirect()->route('lichbaocao.index')
+            ->with('success', 'Lịch báo cáo đã được xóa.');
     }
     
+    
+public function dangKyView()
+{
+    // $lichBaoCaos = LichBaoCao::with('boMon', 'giangVienPhuTrach')->get();
+    $giangVien = Auth::guard('giang_viens')->user();
+
+    // Lấy các lịch báo cáo mà giảng viên đã đăng ký
+    $lichDaDangKy = DB::table('lich_bao_cao_giang_vien')
+                        ->where('giang_vien_id', $giangVien->maGiangVien)
+                        ->pluck('lich_bao_cao_id')->toArray();
+    
+    // Lấy lịch báo cáo có ngày báo cáo < ngày hiện tại trừ 3 ngày
+    $lichBaoCaos = LichBaoCao::with('boMon', 'giangVienPhuTrach')
+                            ->where('ngayBaoCao', '>', Carbon::now()->addDays(4)) // Ngày báo cáo phải lớn hơn 10 ngày sau hôm nay
+                            ->paginate(6);
+
+    return view('lichbaocaodangky.dangky', compact('lichBaoCaos', 'lichDaDangKy'));
+}
+
+public function dangKySubmit(Request $request)
+{
+    $request->validate([
+        'lich_bao_cao_id' => 'required|exists:lich_bao_caos,maLich',
+    ]);
+
+    $giangVienDangKy = Auth::guard('giang_viens')->user();
+
+    // Kiểm tra xem giảng viên đã đăng ký lịch này chưa
+    $daDangKy = DB::table('lich_bao_cao_giang_vien')
+        ->where('lich_bao_cao_id', $request->lich_bao_cao_id)
+        ->where('giang_vien_id', $giangVienDangKy->maGiangVien)
+        ->exists();
+
+    if ($daDangKy) {
+        return redirect()->back()->with('error', 'Bạn đã đăng ký lịch này rồi.');
+    }
+
+    // Thêm bản ghi vào bảng pivot
+    DB::table('lich_bao_cao_giang_vien')->insert([
+        'lich_bao_cao_id' => $request->lich_bao_cao_id,
+        'giang_vien_id' => $giangVienDangKy->maGiangVien,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    // Gửi email cho giảng viên lên lịch
+    $lichBaoCao = LichBaoCao::with(['giangVien', 'boMon.khoa'])->findOrFail($request->lich_bao_cao_id);
+    $giangVienLenLich = $lichBaoCao->giangVien;
+
+    if ($giangVienLenLich && $giangVienLenLich->email) {
+        Mail::to($giangVienLenLich->email)->queue(new DangKySHHTMail($lichBaoCao, $giangVienDangKy));
+    }
+
+
+    return redirect()->back()->with('success', 'Đăng ký lịch thành công.');
+}
+
+public function huyDangKy(Request $request)
+{
+    $request->validate([
+        'lich_bao_cao_id' => 'required|exists:lich_bao_caos,maLich',
+    ]);
+
+    $giangVienHuyDangKy = Auth::guard('giang_viens')->user();
+
+    // Kiểm tra xem giảng viên đã đăng ký lịch này chưa
+    $daDangKy = DB::table('lich_bao_cao_giang_vien')
+        ->where('lich_bao_cao_id', $request->lich_bao_cao_id)
+        ->where('giang_vien_id', $giangVienHuyDangKy->maGiangVien)
+        ->exists();
+
+    if (!$daDangKy) {
+        return redirect()->back()->with('error', 'Hủy đăng ký thành công!');
+    }
+
+    // Hủy đăng ký
+    DB::table('lich_bao_cao_giang_vien')
+        ->where('lich_bao_cao_id', $request->lich_bao_cao_id)
+        ->where('giang_vien_id', $giangVienHuyDangKy->maGiangVien)
+        ->delete();
+
+    // Gửi email cho giảng viên lên lịch
+    $lichBaoCao = LichBaoCao::with(['giangVien', 'boMon.khoa'])->findOrFail($request->lich_bao_cao_id);
+    $giangVienLenLich = $lichBaoCao->giangVien;
+
+    if ($giangVienLenLich && $giangVienLenLich->email) {
+        Mail::to($giangVienLenLich->email)->queue(new HuyDangKySHHTMail($lichBaoCao, $giangVienHuyDangKy));
+    }
+
+
+    return redirect()->back()->with('success', 'Hủy đăng ký thành công.');
+}
 
     
 

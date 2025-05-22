@@ -64,7 +64,7 @@
 <br><br>
 <div style="text-align: right;">
     <p><strong>Trưởng Bộ môn</strong></p><br><br><br>
-    <p><strong>{{ $lich->giangVienPhuTrach->first()->ten ?? 'Nguyễn Đình Hưng' }}</strong></p>
+    <p><strong>{{ $lich->giangVienPhuTrach->first()->ho.' '.$lich->giangVienPhuTrach->first()->ten ?? null }}</strong></p>
 </div>
 
 </body>
